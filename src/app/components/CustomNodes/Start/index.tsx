@@ -1,7 +1,8 @@
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { Handle, Position } from "@xyflow/react";
 import React from "react";
 import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite";
+import BodyText from "../../Typeface/BodyText";
 
 function StartNode() {
   return (
@@ -11,25 +12,18 @@ function StartNode() {
         height: "50px",
         backgroundColor: "#fff",
         borderRadius: "8px",
-        border: "1px solid #E0E0E0",
+        border: "2px solid #7ee787",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
+        gap: 1,
         px: 4,
       }}
     >
-      <PlayCircleFilledWhiteIcon />
-      <Typography
-        sx={{
-          fontSize: "18px",
-          borderBottom: "1px solid #E0E0E0",
-          textAlign: "center",
-          padding: "2px",
-          borderRadius: "8px 8px 0 0",
-        }}
-      >
+      <PlayCircleFilledWhiteIcon sx={{ color: "#7ee787" }} />
+      <BodyText variant="medium" weight="semibold" color="#616161s">
         Start
-      </Typography>
+      </BodyText>
 
       <Handle type="source" position={Position.Right} id="right" />
     </Box>

@@ -1,7 +1,8 @@
 import React from "react";
+import SequentialAgentForm from "../components/SequentialAgentForm";
 
 function CreateSequentialAgent() {
-  return <div>CreateSequentialAgentForm</div>;
+  return <SequentialAgentForm />;
 }
 
 export default CreateSequentialAgent;

@@ -17,9 +17,8 @@ interface CanvasProps {
   onEdgesChange: any;
   onConnect: any;
   handleNodeDoubleClick: (node: any) => void;
-  handleDeleteNode?: (node: any) => void;
+  handleDeleteNode: (node: any) => void;
 }
-
 const Canvas = ({
   nodes,
   edges,
@@ -28,6 +27,7 @@ const Canvas = ({
   onEdgesChange,
   onConnect,
   handleNodeDoubleClick,
+  handleDeleteNode,
 }: CanvasProps) => {
   return (
     <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
@@ -45,27 +45,31 @@ const Canvas = ({
           width="140px"
         />
       </Box>
+
       <ReactFlow
-        nodes={nodes.map((n) => ({
-          ...n,
-          data: {
-            ...n.data,
-            onDoubleClick: () => handleNodeDoubleClick(n),
-          },
-        }))}
+        nodes={nodes}
         nodeTypes={nodeTypes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onNodeDoubleClick={(_, node) => handleNodeDoubleClick(node)}
+        onNodeMouseEnter={(_, node) => handleDeleteNode(node)}
       >
         <Controls />
+
+        {/* <AgentCreateModal
+          open={isModalOpen}
+          handleClose={handleModalClose}
+          handleSubmit={() => {}}
+        /> */}
+        {/* <Background variant="dots" gap={12} size={1} /> */}
       </ReactFlow>
     </Box>
   );
 };
 
-export const ParallelAgentCanvas = ({
+export const SequentialAgentCanvas = ({
   nodes,
   edges,
   addAgentNode,

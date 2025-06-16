@@ -3,18 +3,18 @@
 import { Box } from "@mui/material";
 import React, { useCallback, useState } from "react";
 import ButtonComponent from "../Common/ButtonComponent";
-import { ParallelAgentCanvas } from "./ParallelAgentCanvas";
+
 import Input from "../Common/Input";
+import { SequentialAgentCanvas } from "./SequentialAgentCanvas";
 import { addEdge, useEdgesState, useNodesState } from "@xyflow/react";
-import {
-  AGENT_X,
-  AGENT_Y_GAP,
-  initialEdges,
-  initialNodes,
-} from "./ParallelAgentCanvas/data";
+import { initialEdges, initialNodes } from "./SequentialAgentCanvas/data";
 import AgentCreateModal from "../Common/AgentCreateModal";
 
-function ParallelAgentForm() {
+function SequentialAgentForm() {
+  const [agentName, setAgentName] = useState<string>("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedNode, setSelectedNode] = useState<any>(null);
+
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
@@ -22,9 +22,6 @@ function ParallelAgentForm() {
     (param: any) => setEdges((eds) => addEdge(param, eds)),
     [setEdges]
   );
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedNode, setSelectedNode] = useState<any>(null);
 
   const handleNodeDoubleClick = (node: any) => {
     setSelectedNode(node);
@@ -37,21 +34,23 @@ function ParallelAgentForm() {
   };
 
   const addAgentNode = () => {
-    const START_Y = 200;
-    const agentNodes = nodes.filter((n) => n.type === "middleNode");
-    const count = agentNodes.length;
+    const agentNodes = [...nodes].filter((n) => n.type === "middleNode");
+    const lastAgent = agentNodes
+      .sort((a, b) => a.position.x - b.position.x)
+      .pop();
+
+    if (!lastAgent) return;
+
     const newNodeId = `middle-node-${Date.now()}`;
+    const newX = lastAgent.position.x + 210;
 
     const newNode = {
       id: newNodeId,
       type: "middleNode",
-      position: {
-        x: AGENT_X,
-        y: START_Y + count * AGENT_Y_GAP,
-      },
+      position: { x: newX, y: lastAgent.position.y },
       data: {
         fields: {
-          name: `Agent ${count + 1}`,
+          name: `Agent ${agentNodes.length + 1}`,
           model: "",
           instruction: "",
           temperature: 0.5,
@@ -59,26 +58,49 @@ function ParallelAgentForm() {
           tools: [],
           maxOutputToken: 100,
         },
+        onDoubleClick: () => handleNodeDoubleClick(newNode),
       },
     };
 
-    const newEdges = [
-      ...edges,
-      {
-        id: `e-start-${newNodeId}`,
-        source: "parallel-start",
-        target: newNodeId,
-      },
-      {
-        id: `e-${newNodeId}-output`,
-        source: newNodeId,
-        target: "parallel-output",
-      },
-    ];
+    const updatedNodes = nodes.map((n) => {
+      if (n.id === "sequential-output") {
+        return {
+          ...n,
+          position: {
+            x: newX + 220,
+            y: n.position.y,
+          },
+        };
+      }
+      return n;
+    });
 
-    setNodes([...nodes, newNode]);
-    setEdges(newEdges);
+    const filteredEdges = edges.filter(
+      (e) => !(e.source === lastAgent.id && e.target === "sequential-output")
+    );
+
+    filteredEdges.push({
+      id: `e-${lastAgent.id}-${newNodeId}`,
+      source: lastAgent.id,
+      target: newNodeId,
+    });
+
+    filteredEdges.push({
+      id: `e-${newNodeId}-sequential-output`,
+      source: newNodeId,
+      target: "sequential-output",
+    });
+
+    setNodes([...updatedNodes, newNode]);
+    setEdges(filteredEdges);
   };
+
+  const handleDeleteNode = useCallback((nodeId: string) => {
+    setNodes((nds) => nds.filter((n) => n.id !== nodeId));
+    setEdges((eds) =>
+      eds.filter((e) => e.source !== nodeId && e.target !== nodeId)
+    );
+  }, []);
 
   return (
     <Box>
@@ -88,9 +110,11 @@ function ParallelAgentForm() {
         <Input
           name="name"
           label="Agent Name"
-          value={""}
+          value={agentName}
           placeholder="e.g., Customer Onboarding Flow"
-          onChange={() => {}}
+          onChange={(e) => {
+            setAgentName(e.target.value);
+          }}
           width="40%"
           showLabel
         />
@@ -102,7 +126,7 @@ function ParallelAgentForm() {
             borderRadius: "8px",
           }}
         >
-          <ParallelAgentCanvas
+          <SequentialAgentCanvas
             nodes={nodes}
             edges={edges}
             onNodesChange={onNodesChange}
@@ -110,6 +134,7 @@ function ParallelAgentForm() {
             onConnect={onConnect}
             addAgentNode={addAgentNode}
             handleNodeDoubleClick={handleNodeDoubleClick}
+            handleDeleteNode={handleDeleteNode}
           />
         </Box>
         <ButtonComponent
@@ -129,4 +154,4 @@ function ParallelAgentForm() {
   );
 }
 
-export default ParallelAgentForm;
+export default SequentialAgentForm;

@@ -1,34 +1,78 @@
-import { Box, Typography } from "@mui/material";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Box } from "@mui/material";
 import { Handle, Position } from "@xyflow/react";
-import React from "react";
+import SupportAgentIcon from "@mui/icons-material/SupportAgent";
+import React, { useState } from "react";
+import BodyText from "../../Typeface/BodyText";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const AgentNode = ({ data }: any) => {
+  const [showDeleteIcon, setShowDeleteIcon] = useState<boolean>(false);
   return (
     <Box
       sx={{
-        width: "100px",
-        height: "50px",
+        height: "70px",
         backgroundColor: "#fff",
         borderRadius: "8px",
-        border: "1px solid #E0E0E0",
+        border: "2px solid #4dd0e1",
         display: "flex",
-        justifyContent: "center",
+        justifyContent: "start",
         alignItems: "center",
+        gap: 1,
         px: 4,
+        position: "relative",
       }}
       onDoubleClick={data.onDoubleClick}
+      onMouseEnter={() => setShowDeleteIcon(true)}
+      onMouseLeave={() => setShowDeleteIcon(false)}
     >
-      <Typography
+      {showDeleteIcon && (
+        <DeleteIcon
+          style={{
+            position: "absolute",
+            top: -28,
+            right: "45%",
+            fontSize: "22px",
+            color: "#aaa",
+            zIndex: 999,
+            pointerEvents: "auto",
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            data.handleDeleteNode?.();
+          }}
+        />
+      )}
+      <SupportAgentIcon sx={{ color: "#4dd0e1" }} />
+      <Box
         sx={{
-          fontSize: "18px",
-          borderBottom: "1px solid #E0E0E0",
-          textAlign: "center",
-          padding: "2px",
-          borderRadius: "8px 8px 0 0",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "start",
+          gap: 0.4,
         }}
       >
-        {data.fields.name || ""}
-      </Typography>
+        {" "}
+        <BodyText
+          variant="medium"
+          weight="semibold"
+          color="#616161s"
+          whiteSpace={"nowrap"}
+        >
+          {data.fields.name || ""}
+        </BodyText>
+        <BodyText
+          variant="small"
+          weight="semibold"
+          color="#fff"
+          whiteSpace={"nowrap"}
+          bgcolor={"#4dd0e1"}
+          borderRadius={"12px"}
+          px={2}
+        >
+          {data.fields.model || ""}
+        </BodyText>
+      </Box>
       <Handle type="source" position={Position.Right} />
       <Handle type="target" position={Position.Left} />
     </Box>

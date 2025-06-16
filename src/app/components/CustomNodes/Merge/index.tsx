@@ -1,10 +1,9 @@
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { Handle, Position } from "@xyflow/react";
 import React from "react";
-import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
 import BodyText from "../../Typeface/BodyText";
 
-function OutputNode() {
+function MergeNode() {
   return (
     <Box
       sx={{
@@ -12,7 +11,7 @@ function OutputNode() {
         height: "50px",
         backgroundColor: "#fff",
         borderRadius: "8px",
-        border: "2px solid #4ddbbb",
+        border: "2px solid #4160e6",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
@@ -20,14 +19,16 @@ function OutputNode() {
         px: 4,
       }}
     >
-      <ChatBubbleIcon sx={{ color: "#4ddbbb" }} />
+      {/* <PlayCircleFilledWhiteIcon sx={{ color: "#7ee787" }} /> */}
       <BodyText variant="medium" weight="semibold" color="#616161s">
-        Chat
+        Merge
       </BodyText>
 
       <Handle type="source" position={Position.Left} id="left" />
+
+      <Handle type="source" position={Position.Right} id="right" />
     </Box>
   );
 }
 
-export default OutputNode;
+export default MergeNode;

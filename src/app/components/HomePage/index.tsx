@@ -11,8 +11,7 @@ function HomePage() {
   const [agentType, setAgentType] = useState<number | null>(null);
 
   const handleRoute = () => {
-    const route =
-      agentType === 0 ? "/create-sequential-agent" : "/create-parallel-agent";
+    const route = agentType === 0 ? "/sequential-agent" : "/parallel-agent";
     router.push(route);
   };
   return (
