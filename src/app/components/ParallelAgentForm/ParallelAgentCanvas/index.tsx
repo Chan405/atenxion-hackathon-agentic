@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import {
   addEdge,
   Background,
@@ -14,6 +14,7 @@ import "@xyflow/react/dist/style.css";
 import StartNode from "../../CustomNodes/Start";
 import OutputNode from "../../CustomNodes/Output";
 import AgentNode from "../../CustomNodes/Agent";
+import AgentCreateModal from "../../Common/AgentCreateModal";
 
 const Canvas = () => {
   const initialNodes = [
@@ -65,9 +66,28 @@ const Canvas = () => {
     (param: any) => setEdges((eds) => addEdge(param, eds)),
     [setEdges]
   );
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedNode, setSelectedNode] = useState<any>(null);
+
+  const handleNodeDoubleClick = (node: any) => {
+    setSelectedNode(node);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedNode(null);
+  };
   return (
     <ReactFlow
-      nodes={nodes}
+      nodes={nodes.map((n) => ({
+        ...n,
+        data: {
+          ...n.data,
+          onDoubleClick: () => handleNodeDoubleClick(n),
+        },
+      }))}
       nodeTypes={nodeTypes}
       edges={edges}
       onNodesChange={onNodesChange}
@@ -75,6 +95,12 @@ const Canvas = () => {
       onConnect={onConnect}
     >
       <Controls />
+
+      <AgentCreateModal
+        open={isModalOpen}
+        handleClose={handleModalClose}
+        handleSubmit={() => {}}
+      />
       {/* <Background variant="dots" gap={12} size={1} /> */}
     </ReactFlow>
   );

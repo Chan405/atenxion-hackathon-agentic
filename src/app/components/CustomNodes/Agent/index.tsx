@@ -1,4 +1,3 @@
-// components/CustomFormNode.tsx
 import { Box, Typography } from "@mui/material";
 import { Handle, Position } from "@xyflow/react";
 import React from "react";
@@ -17,7 +16,7 @@ const AgentNode = ({ data }: any) => {
         alignItems: "center",
         px: 4,
       }}
-      onClick={data.onClick}
+      onDoubleClick={data.onDoubleClick}
     >
       <Typography
         sx={{
