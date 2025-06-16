@@ -33,6 +33,7 @@ interface ModalContainerProps {
   isIntegration?: boolean;
 }
 import CloseIcon from "@mui/icons-material/Close";
+import OutlineButton from "../OutlineButton";
 
 function ModalContainer({
   open,
@@ -51,13 +52,10 @@ function ModalContainer({
   isEditModal,
   btnDisabled,
   bgColor,
-  // buttonFlex = "flex-end",
   maxHeight,
   showBackButton = false,
   isIntegration,
-}: // checked,
-// handleChecked,
-ModalContainerProps) {
+}: ModalContainerProps) {
   const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down(900));
 
   const style = {
@@ -71,8 +69,6 @@ ModalContainerProps) {
     borderRadius: "8px",
     boxShadow: "none",
     py: 2,
-    overflowY: "scroll",
-    maxHeight: maxHeight || "80vh",
   };
 
   return (
@@ -82,7 +78,7 @@ ModalContainerProps) {
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
-        <Box maxHeight="70vh" overflow="scroll">
+        <Box>
           <Box
             px={3}
             pb={2}
@@ -116,7 +112,7 @@ ModalContainerProps) {
                 </Box>
               )}
               {/* <SubTitle text={title} /> */}
-              <SubHeading fontSize="18px" textAlign="center" flex={1}>
+              <SubHeading fontSize="18px" textAlign="center" flex={1} ml={1}>
                 {title}
               </SubHeading>
               <Box
@@ -143,7 +139,9 @@ ModalContainerProps) {
               </BodyText>
             )}
           </Box>
-          <Box px={3}>{children}</Box>
+          <Box px={3} maxHeight={"70vh"} overflow={"auto"}>
+            {children}
+          </Box>
         </Box>
 
         {!isIntegration && (
@@ -155,7 +153,7 @@ ModalContainerProps) {
             borderTop="1px solid #E6E6E6"
             justifyContent={"flex-end"}
           >
-            {/* {!isEditModal && cancelBtnText.length > 0 && (
+            {cancelBtnText.length > 0 && (
               <OutlineButton
                 label={cancelBtnText}
                 width="75px"
@@ -163,22 +161,12 @@ ModalContainerProps) {
                 background="#f2f2f2"
                 borderRadius="8px"
                 showBorder={false}
-                onClick={cancelBtnHandler}
+                onClick={handleClose}
               />
-            )} */}
-            {/* {isEditModal && (
-            <Box display='flex' alignItems='center'>
-              <Checkbox
-                checked={checked}
-                onChange={handleChecked}
-                inputProps={{ "aria-label": "controlled" }}
-              />
-              <Typography>Marked as moderated</Typography>
-            </Box>
-          )} */}
+            )}
             <ButtonComponent
               label={confirmBtnText}
-              width={buttonWidth ? buttonWidth : "110px"}
+              width={buttonWidth ? buttonWidth : "120px"}
               height="41px"
               borderRadius="8px"
               onClick={confirmBtnHandler}

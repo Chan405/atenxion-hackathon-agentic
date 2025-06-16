@@ -47,7 +47,7 @@ function Input({
   labelOpacity,
   postFix,
   disabled,
-  weight = "regular",
+  weight = "medium",
   width = "auto",
   borderRadius = "12px",
   onKeyDown,
@@ -136,23 +136,8 @@ function Input({
         )}
         {icon && icon}
       </Box>
-      {/* {errors && touched && (
-        <Typography
-          fontSize="12px"
-          color="red"
-          mx="2px"
-          mt={1}
-          textAlign="left"
-        >
-          {errors}
-        </Typography>
-      )} */}
     </Box>
   );
 }
-
-// Input.defaultProps = {
-//   type: "text",
-// };
 
 export default Input;

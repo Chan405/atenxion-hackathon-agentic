@@ -4,8 +4,18 @@ import React from "react";
 import ButtonComponent from "../Common/ButtonComponent";
 import { ParallelAgentCanvas } from "./ParallelAgentCanvas";
 import Input from "../Common/Input";
+import { chat } from "@/app/service/axiosServer";
+// import { chat } from "@/actions/agenticAction";
 
 function ParallelAgentForm() {
+  // const sendMessage = async () => {
+  //   const res = await chat(
+  //     "684ff3a80c5bb5409d9d4250",
+  //     "Tell me a short funny story"
+  //   );
+  //   console.log({ res });
+  // };
+
   return (
     <Box>
       <Box
@@ -20,6 +30,7 @@ function ParallelAgentForm() {
           width="40%"
           showLabel
         />
+        {/* <ButtonComponent onClick={sendMessage} label="Send" /> */}
         <Box
           sx={{
             height: "500px",
