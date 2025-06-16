@@ -9,6 +9,7 @@ import { SequentialAgentCanvas } from "./SequentialAgentCanvas";
 import { addEdge, useEdgesState, useNodesState } from "@xyflow/react";
 import { initialEdges, initialNodes } from "./SequentialAgentCanvas/data";
 import AgentCreateModal from "../Common/AgentCreateModal";
+import { createAgentic } from "@/actions/agenticAction";
 
 function SequentialAgentForm() {
   const [agentName, setAgentName] = useState<string>("");
@@ -57,6 +58,7 @@ function SequentialAgentForm() {
           topP: 10,
           tools: [],
           maxOutputToken: 100,
+          description: "",
         },
         onDoubleClick: () => handleNodeDoubleClick(newNode),
       },
@@ -102,6 +104,59 @@ function SequentialAgentForm() {
     );
   }, []);
 
+  const handleSaveAgent = (id: string, values: any) => {
+    console.log(values);
+    setNodes((prevNodes) =>
+      prevNodes.map((node) =>
+        node.id === id
+          ? {
+              ...node,
+              data: {
+                ...node.data,
+                ...values,
+                fields: {
+                  ...node.data.fields,
+                  ...values,
+                },
+              },
+            }
+          : node
+      )
+    );
+    setIsModalOpen(false);
+    setSelectedNode(null);
+  };
+  const handleCreateOrUpdateAgent = async () => {
+    const agentNodes = nodes.filter((node) => node.data?.fields);
+
+    const agents = agentNodes.map((node) => {
+      const fields = node.data.fields;
+
+      if (fields) {
+        return {
+          name: fields.name,
+          instruction: fields.instruction,
+          temperature: String(fields.temperature),
+          tools: Array.isArray(fields.tools)
+            ? fields.tools
+            : typeof fields.tools === "string"
+            ? [fields.tools]
+            : [],
+          chatmodel: fields.model,
+          description: fields.description,
+        };
+      }
+    });
+
+    const agentic = {
+      name: agentName,
+      type: "sequential",
+      agents,
+    };
+    const response = await createAgentic(agentic);
+    console.log(response);
+  };
+
   return (
     <Box>
       <Box
@@ -138,17 +193,20 @@ function SequentialAgentForm() {
           />
         </Box>
         <ButtonComponent
-          label="Next"
-          onClick={() => {}}
+          label="Create Agent"
+          onClick={handleCreateOrUpdateAgent}
           width="150px"
           height="40px"
         />
 
-        <AgentCreateModal
-          open={isModalOpen}
-          handleClose={handleModalClose}
-          handleSubmit={() => {}}
-        />
+        {selectedNode && (
+          <AgentCreateModal
+            open={isModalOpen}
+            handleClose={handleModalClose}
+            handleSaveAgent={handleSaveAgent}
+            selectedNode={selectedNode}
+          />
+        )}
       </Box>
     </Box>
   );

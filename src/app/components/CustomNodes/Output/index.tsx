@@ -25,7 +25,7 @@ function OutputNode() {
         Chat
       </BodyText>
 
-      <Handle type="source" position={Position.Left} id="left" />
+      <Handle type="target" position={Position.Left} id="output" />
     </Box>
   );
 }

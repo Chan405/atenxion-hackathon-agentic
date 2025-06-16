@@ -24,7 +24,7 @@ function MergeNode() {
         Merge
       </BodyText>
 
-      <Handle type="source" position={Position.Left} id="left" />
+      <Handle type="target" position={Position.Left} id="left" />
 
       <Handle type="source" position={Position.Right} id="right" />
     </Box>

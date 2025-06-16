@@ -13,8 +13,11 @@ import {
   initialNodes,
 } from "./ParallelAgentCanvas/data";
 import AgentCreateModal from "../Common/AgentCreateModal";
+import { createAgentic } from "@/actions/agenticAction";
 
 function ParallelAgentForm() {
+  const [agentName, setAgentName] = useState<string>("");
+
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
@@ -58,6 +61,7 @@ function ParallelAgentForm() {
           topP: 10,
           tools: [],
           maxOutputToken: 100,
+          description: "",
         },
       },
     };
@@ -72,12 +76,67 @@ function ParallelAgentForm() {
       {
         id: `e-${newNodeId}-output`,
         source: newNodeId,
-        target: "parallel-output",
+        // target: "parallel-output",
+        target: "merge-node",
       },
     ];
 
     setNodes([...nodes, newNode]);
     setEdges(newEdges);
+  };
+
+  const handleSaveAgent = (id: string, values: any) => {
+    console.log(values);
+    setNodes((prevNodes) =>
+      prevNodes.map((node) =>
+        node.id === id
+          ? {
+              ...node,
+              data: {
+                ...node.data,
+                ...values,
+                fields: {
+                  ...node.data.fields,
+                  ...values,
+                },
+              },
+            }
+          : node
+      )
+    );
+    setIsModalOpen(false);
+    setSelectedNode(null);
+  };
+
+  const handleCreateOrUpdateAgent = async () => {
+    const agentNodes = nodes.filter((node) => node.data?.fields);
+
+    const agents = agentNodes.map((node) => {
+      const fields = node.data.fields;
+
+      if (fields) {
+        return {
+          name: fields.name,
+          instruction: fields.instruction,
+          temperature: String(fields.temperature),
+          tools: Array.isArray(fields.tools)
+            ? fields.tools
+            : typeof fields.tools === "string"
+            ? [fields.tools]
+            : [],
+          chatmodel: fields.model,
+          description: fields.description,
+        };
+      }
+    });
+
+    const agentic = {
+      name: agentName,
+      type: "sequential",
+      agents,
+    };
+    const response = await createAgentic(agentic);
+    console.log(response);
   };
 
   return (
@@ -90,10 +149,13 @@ function ParallelAgentForm() {
           label="Agent Name"
           value={""}
           placeholder="e.g., Customer Onboarding Flow"
-          onChange={() => {}}
+          onChange={(e) => {
+            setAgentName(e.target.value);
+          }}
           width="40%"
           showLabel
         />
+        {/* <ButtonComponent onClick={sendMessage} label="Send" /> */}
         <Box
           sx={{
             height: "500px",
@@ -114,16 +176,19 @@ function ParallelAgentForm() {
         </Box>
         <ButtonComponent
           label="Next"
-          onClick={() => {}}
+          onClick={handleCreateOrUpdateAgent}
           width="150px"
           height="40px"
         />
 
-        <AgentCreateModal
-          open={isModalOpen}
-          handleClose={handleModalClose}
-          handleSubmit={() => {}}
-        />
+        {selectedNode && (
+          <AgentCreateModal
+            open={isModalOpen}
+            handleClose={handleModalClose}
+            handleSaveAgent={handleSaveAgent}
+            selectedNode={selectedNode}
+          />
+        )}
       </Box>
     </Box>
   );

@@ -22,6 +22,7 @@ export const initialNodes = [
         topP: 10,
         tools: [],
         maxOutputToken: 100,
+        description: "",
       },
     },
   },
@@ -41,5 +42,10 @@ export const nodeTypes = {
 
 export const initialEdges = [
   { id: "e1", source: "sequential-start", target: "middle-node" },
-  { id: "e2", source: "middle-node", target: "sequential-output" },
+  {
+    id: "e2",
+    source: "middle-node",
+    target: "sequential-output",
+    targetHandle: "output",
+  },
 ];

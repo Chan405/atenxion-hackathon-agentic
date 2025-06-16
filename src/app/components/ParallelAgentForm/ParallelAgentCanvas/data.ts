@@ -6,12 +6,12 @@ import StartNode from "../../CustomNodes/Start";
 const START_X = 0;
 const START_Y = 200;
 
-export const AGENT_X = 200;
+export const AGENT_X = 230;
 export const AGENT_Y_GAP = 120;
 
-const OUTPUT_X = 500;
+const OUTPUT_X = 680;
 
-const MERGE_X = 380; // between agents and output
+const MERGE_X = 460; // between agents and output
 const MERGE_Y = 200;
 
 export const initialNodes = [
@@ -34,6 +34,7 @@ export const initialNodes = [
         topP: 10,
         tools: [],
         maxOutputToken: 100,
+        description: "",
       },
     },
   },

@@ -26,7 +26,7 @@ const AgentNode = ({ data }: any) => {
       onMouseEnter={() => setShowDeleteIcon(true)}
       onMouseLeave={() => setShowDeleteIcon(false)}
     >
-      {showDeleteIcon && (
+      {/* {showDeleteIcon && (
         <DeleteIcon
           style={{
             position: "absolute",
@@ -42,7 +42,7 @@ const AgentNode = ({ data }: any) => {
             data.handleDeleteNode?.();
           }}
         />
-      )}
+      )} */}
       <SupportAgentIcon sx={{ color: "#4dd0e1" }} />
       <Box
         sx={{
@@ -59,7 +59,9 @@ const AgentNode = ({ data }: any) => {
           color="#616161s"
           whiteSpace={"nowrap"}
         >
-          {data.fields.name || ""}
+          {data.fields.name === "gemini-2.5-flash-preview-04-17"
+            ? "Gemini"
+            : data.fields.name}
         </BodyText>
         <BodyText
           variant="small"
@@ -73,8 +75,8 @@ const AgentNode = ({ data }: any) => {
           {data.fields.model || ""}
         </BodyText>
       </Box>
-      <Handle type="source" position={Position.Right} />
-      <Handle type="target" position={Position.Left} />
+      <Handle type="source" position={Position.Right} id={"right"} />
+      <Handle type="target" position={Position.Left} id={"left"} />
     </Box>
   );
 };
