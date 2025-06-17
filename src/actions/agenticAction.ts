@@ -1,14 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
-import { axiosServerInstance } from "@/app/service/axiosServer";
+import { axiosServerInstance } from "@/app/service/axiosService";
 
 export async function createAgentic(agentic: any) {
   try {
-    const response = await axiosServerInstance.post("/agentics", {
-      agentic,
-    });
-    return response?.data?.data;
+    const response = await axiosServerInstance.post("/", agentic);
+    return response?.data;
   } catch (error: any) {
     console.log("error", error?.response?.data);
     throw error;

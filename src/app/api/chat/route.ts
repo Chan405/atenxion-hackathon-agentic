@@ -1,5 +1,4 @@
 "use server";
-import { NextRequest } from "next/server";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -14,5 +13,16 @@ export async function POST(req: Request) {
 
   if (!response.status.toString().startsWith("2")) {
     console.log(response);
+    return new Response(JSON.stringify({ detail: "something went wrong" }), {
+      status: response.status,
+    });
   }
+
+  return new Response(response.body, {
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+    },
+  });
 }

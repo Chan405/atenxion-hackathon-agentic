@@ -126,13 +126,15 @@ function ParallelAgentForm() {
             : [],
           chatmodel: fields.model,
           description: fields.description,
+          topP: String(fields.topP),
+          maxTokens: String(fields.maxOutputToken),
         };
       }
     });
 
     const agentic = {
       name: agentName,
-      type: "sequential",
+      type: "parallel",
       agents,
     };
     const response = await createAgentic(agentic);

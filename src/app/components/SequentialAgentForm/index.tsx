@@ -10,6 +10,7 @@ import { addEdge, useEdgesState, useNodesState } from "@xyflow/react";
 import { initialEdges, initialNodes } from "./SequentialAgentCanvas/data";
 import AgentCreateModal from "../Common/AgentCreateModal";
 import { createAgentic } from "@/actions/agenticAction";
+import { chat } from "@/app/service/chatService";
 
 function SequentialAgentForm() {
   const [agentName, setAgentName] = useState<string>("");
@@ -54,10 +55,10 @@ function SequentialAgentForm() {
           name: `Agent ${agentNodes.length + 1}`,
           model: "",
           instruction: "",
-          temperature: 0.5,
-          topP: 10,
+          temperature: 0.7,
+          topP: 1,
           tools: [],
-          maxOutputToken: 100,
+          maxOutputToken: 16000,
           description: "",
         },
         onDoubleClick: () => handleNodeDoubleClick(newNode),
@@ -144,6 +145,8 @@ function SequentialAgentForm() {
             : [],
           chatmodel: fields.model,
           description: fields.description,
+          topP: String(fields.topP),
+          maxTokens: String(fields.maxOutputToken),
         };
       }
     });
@@ -154,9 +157,17 @@ function SequentialAgentForm() {
       agents,
     };
     const response = await createAgentic(agentic);
-    console.log(response);
+    if (response?.status === "success") {
+    }
   };
 
+  const sendMsg = async () => {
+    const res = await chat(
+      "6850b4b11db8349f0756bc0c",
+      "tell me a horror story"
+    );
+    console.log("res", res);
+  };
   return (
     <Box>
       <Box
@@ -181,6 +192,7 @@ function SequentialAgentForm() {
             borderRadius: "8px",
           }}
         >
+          <ButtonComponent label="ask" onClick={sendMsg} />
           <SequentialAgentCanvas
             nodes={nodes}
             edges={edges}

@@ -12,16 +12,16 @@ export const initialNodes = [
   {
     id: "middle-node",
     type: "middleNode",
-    position: { x: 170, y: 60 },
+    position: { x: 200, y: 60 },
     data: {
       fields: {
         name: "Agent 1",
         model: "gpt-4.1",
         instruction: "",
-        temperature: 0.5,
-        topP: 10,
+        temperature: 0.7,
+        topP: 1,
         tools: [],
-        maxOutputToken: 100,
+        maxOutputToken: 16000,
         description: "",
       },
     },
@@ -29,7 +29,7 @@ export const initialNodes = [
   {
     id: "sequential-output",
     type: "outputNode",
-    position: { x: 420, y: 70 },
+    position: { x: 440, y: 70 },
     data: { label: "sequential-output" },
   },
 ];
