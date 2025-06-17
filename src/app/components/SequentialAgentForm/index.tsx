@@ -106,10 +106,13 @@ function SequentialAgentForm() {
   };
 
   const handleDeleteNode = useCallback((nodeId: string) => {
+    // console.log(nodeId);
     setNodes((nds) => nds.filter((n) => n.id !== nodeId));
     setEdges((eds) =>
       eds.filter((e) => e.source !== nodeId && e.target !== nodeId)
     );
+    setSelectedNode(null);
+    setIsModalOpen(false);
   }, []);
 
   const buildSequentialNodesAndEdges = (agentValue: any) => {
@@ -332,7 +335,6 @@ function SequentialAgentForm() {
             onConnect={onConnect}
             addAgentNode={addAgentNode}
             handleNodeDoubleClick={handleNodeDoubleClick}
-            handleDeleteNode={handleDeleteNode}
           />
         </Box>
         <Box
@@ -367,6 +369,7 @@ function SequentialAgentForm() {
             handleClose={handleModalClose}
             handleSaveAgent={handleSaveAgent}
             selectedNode={selectedNode}
+            removeAgent={handleDeleteNode}
           />
         )}
       </Box>

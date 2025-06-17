@@ -31,11 +31,14 @@ interface ModalContainerProps {
   showBackButton?: boolean;
   titleCenter?: boolean;
   isIntegration?: boolean;
+  showDeleteBtn?: boolean;
+  confirmDelete?: () => void;
 }
 import CloseIcon from "@mui/icons-material/Close";
 import OutlineButton from "../OutlineButton";
 
 function ModalContainer({
+  showDeleteBtn = false,
   open,
   handleClose,
   children,
@@ -55,6 +58,7 @@ function ModalContainer({
   maxHeight,
   showBackButton = false,
   isIntegration,
+  confirmDelete,
 }: ModalContainerProps) {
   const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down(900));
 
@@ -156,10 +160,10 @@ function ModalContainer({
             {cancelBtnText.length > 0 && (
               <OutlineButton
                 label={cancelBtnText}
-                width="75px"
+                width="105px"
                 height="42px"
                 background="#f2f2f2"
-                borderRadius="8px"
+                borderRadius="80px"
                 showBorder={false}
                 onClick={handleClose}
               />
@@ -173,6 +177,19 @@ function ModalContainer({
               loading={loading}
               disabled={btnDisabled}
             />
+            {showDeleteBtn && (
+              <ButtonComponent
+                label={"Remove"}
+                width={buttonWidth ? buttonWidth : "120px"}
+                height="41px"
+                borderRadius="8px"
+                onClick={confirmDelete}
+                loading={loading}
+                disabled={btnDisabled}
+                color="#EF476F"
+                textColor="#fff"
+              />
+            )}
           </Box>
         )}
       </Box>

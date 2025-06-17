@@ -16,7 +16,6 @@ interface CanvasProps {
   onEdgesChange: any;
   onConnect: any;
   handleNodeDoubleClick: (node: any) => void;
-  handleDeleteNode: (node: any) => void;
 }
 const Canvas = ({
   nodes,
@@ -26,7 +25,6 @@ const Canvas = ({
   onEdgesChange,
   onConnect,
   handleNodeDoubleClick,
-  handleDeleteNode,
 }: CanvasProps) => {
   return (
     <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
@@ -53,7 +51,6 @@ const Canvas = ({
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeDoubleClick={(_, node) => handleNodeDoubleClick(node)}
-        onNodeMouseEnter={(_, node) => handleDeleteNode(node)}
       ></ReactFlow>
     </Box>
   );
@@ -67,7 +64,6 @@ export const SequentialAgentCanvas = ({
   onEdgesChange,
   onConnect,
   handleNodeDoubleClick,
-  handleDeleteNode,
 }: CanvasProps) => (
   <ReactFlowProvider>
     <Canvas
@@ -78,7 +74,6 @@ export const SequentialAgentCanvas = ({
       onConnect={onConnect}
       addAgentNode={addAgentNode}
       handleNodeDoubleClick={handleNodeDoubleClick}
-      handleDeleteNode={handleDeleteNode}
     />
   </ReactFlowProvider>
 );
