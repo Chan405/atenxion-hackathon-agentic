@@ -31,7 +31,7 @@ export const initialNodes = [
         model: "",
         instruction: "",
         temperature: 0.5,
-        topP: 10,
+        topP: 1.0,
         tools: [],
         maxOutputToken: 100,
         description: "",

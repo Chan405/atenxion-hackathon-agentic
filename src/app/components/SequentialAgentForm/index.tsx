@@ -10,7 +10,7 @@ import { addEdge, useEdgesState, useNodesState } from "@xyflow/react";
 import { initialEdges, initialNodes } from "./SequentialAgentCanvas/data";
 import AgentCreateModal from "../Common/AgentCreateModal";
 import { createAgentic } from "@/actions/agenticAction";
-import { chat } from "@/app/service/chatService";
+import { useRouter } from "next/navigation";
 
 function SequentialAgentForm() {
   const [agentName, setAgentName] = useState<string>("");
@@ -19,6 +19,7 @@ function SequentialAgentForm() {
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const router = useRouter();
 
   const onConnect = useCallback(
     (param: any) => setEdges((eds) => addEdge(param, eds)),
@@ -56,7 +57,7 @@ function SequentialAgentForm() {
           model: "",
           instruction: "",
           temperature: 0.7,
-          topP: 1,
+          topP: 1.0,
           tools: [],
           maxOutputToken: 16000,
           description: "",
@@ -158,16 +159,10 @@ function SequentialAgentForm() {
     };
     const response = await createAgentic(agentic);
     if (response?.status === "success") {
+      router.push(`/chat/${response.data}`);
     }
   };
 
-  const sendMsg = async () => {
-    const res = await chat(
-      "6850b4b11db8349f0756bc0c",
-      "tell me a horror story"
-    );
-    console.log("res", res);
-  };
   return (
     <Box>
       <Box

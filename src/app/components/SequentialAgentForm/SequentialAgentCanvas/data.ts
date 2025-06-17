@@ -19,7 +19,7 @@ export const initialNodes = [
         model: "gpt-4.1",
         instruction: "",
         temperature: 0.7,
-        topP: 1,
+        topP: 1.0,
         tools: [],
         maxOutputToken: 16000,
         description: "",

@@ -1,4 +1,11 @@
-export async function chat(agentId: string, message: string) {
+export async function chat(
+  agentId: string,
+  message: string,
+  streamingMessage: string,
+  setStreamingMessage: any,
+  setMessages: any,
+  setStreaming: any
+) {
   try {
     const streamMessage = await fetch("/api/chat", {
       method: "POST",
@@ -13,7 +20,8 @@ export async function chat(agentId: string, message: string) {
       throw new Error("Service Failure");
     }
     if (streamMessage.ok) {
-      console.log("streaming");
+      setStreaming(true);
+      setStreamingMessage("");
 
       const reader = streamMessage.body?.getReader();
       const decoder = new TextDecoder("utf-8");
@@ -26,43 +34,41 @@ export async function chat(agentId: string, message: string) {
 
         done = isDone;
 
-        // if (streamingRef.current) {
-        //   streamingRef.current = false;
-        //   break;
-        // }
         if (done) {
+          setStreamingMessage("");
+          setStreaming(false);
           break;
         }
-
         const chunk = decoder.decode(value, { stream: true });
         const lines = chunk.split("\n");
 
-        let isLoadingStopped = false;
         for (const line of lines) {
           if (!line.trim()) continue;
-          console.log({ line });
           if (line.startsWith("data:")) {
             const dataString = line.substring(5).trim();
+            console.log({ dataString });
             if (!dataString) continue;
             try {
               const jsonData = JSON.parse(dataString);
-              console.log(jsonData);
-              // if (jsonData.status === "error") {
-              //   throw jsonData;
-              // }
-              // if (jsonData.status === "streaming") {
-              //   if (jsonData.response.length > 0 && !isLoadingStopped) {
-              //     isLoadingStopped = true;
-              //   }
-              // } else if (jsonData.status === "End of stream") {
-              //   const newMessageId = jsonData.newMessageId;
-              //   const fullMessageResponse = await fetch(
-              //     `/api/message/${newMessageId}`
-              //   );
 
-              //   const fullMessage = await fullMessageResponse.json();
-              //   // console.log({ fullMessage });
-              // }
+              if (jsonData.status === "error") {
+                throw jsonData;
+              }
+              if (jsonData.status === "streaming") {
+                if (jsonData.response.length > 0) {
+                  setStreamingMessage((prev) => prev + jsonData.response);
+                }
+              } else if (jsonData.status === "Agent Called") {
+                setMessages((prev) => [
+                  ...prev,
+                  { agentCall: `Agent Got Called: ${jsonData.response}` },
+                ]);
+              } else if (jsonData.status === "End of stream") {
+                // setStreamingMessage(
+                //   (prev) => prev + jsonData.response + "\\n\\n"
+                // );
+                setMessages((prev) => [...prev, { text: jsonData.response }]);
+              }
             } catch (error: any) {
               if (error.status === "error") {
                 throw error;

@@ -24,7 +24,7 @@ function AgentCreateModal({
   const modelLists = [
     { value: "gpt-4.1", label: "GPT 4.1" },
     { value: "gpt-4o", label: "GPT 4o" },
-    { value: "gemini-2.5-pro-preview-04-17", label: "Gemini 2.5" },
+    { value: "gemini-2.5-pro-preview-05-06", label: "Gemini 2.5" },
   ];
 
   const toolLists = [
@@ -40,7 +40,7 @@ function AgentCreateModal({
     model: values.model || "gpt-4.1",
     instruction: values.instruction || "",
     temperature: values.temperature || 0.7,
-    topP: values.topP || 1,
+    topP: values.topP || 1.0,
 
     tools: values.tools || [],
     maxOutputToken: values.maxOutputToken || 16000,
