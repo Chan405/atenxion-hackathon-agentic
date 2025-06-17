@@ -314,7 +314,7 @@ function SequentialAgentForm() {
           label={params.id ? "Update" : "Create"}
           onClick={handleCreateOrUpdateAgent}
           width="150px"
-          height="40px"
+          height="50px"
         />
 
         {selectedNode && (

@@ -1,5 +1,5 @@
 "use client";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import AgentTypeCard from "./AgentTypeCard";
@@ -21,11 +21,31 @@ function HomePage() {
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
-        bgcolor: "#21386e",
+        bgcolor: "#052659",
         // bgcolor: "#374c7c",
       }}
     >
       <Box>
+        <Typography
+          textAlign="center"
+          variant="h2"
+          component="h1"
+          color="#C1e8ff"
+          mb={2}
+          sx={{
+            fontWeight: "bold",
+            fontSize: {
+              xs: "2rem",
+              sm: "2rem",
+              md: "3rem",
+            },
+          }}
+
+          // fontSize={{ xl: "28px", lg: "24px", xs: "22px" }}
+          // fontWeight="bold"
+        >
+          Atenxion Multi Agent
+        </Typography>
         <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
           <Box onClick={() => setAgentType(0)} mb={3}>
             <AgentTypeCard
@@ -50,7 +70,9 @@ function HomePage() {
             label="Next"
             onClick={handleRoute}
             width="150px"
-            height="40px"
+            height="50px"
+            color="#C1e8ff"
+            textColor="#052659"
           />
         </Box>
       </Box>
