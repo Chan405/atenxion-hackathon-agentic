@@ -6,9 +6,10 @@ const HeadingH3 = ({ children }: { children: ReactNode }) => {
     <Typography
       sx={{
         fontWeight: 700,
-        fontSize: { md: "16px", lg: "16px", xl: "18px" },
+        fontSize: { md: "20px", lg: "22px", xl: "24px" },
         lineHeight: "125%",
         fontFamily: "Figtree",
+        color: "#052659",
       }}
     >
       {children}

@@ -66,7 +66,6 @@ const ChatPanel = ({ id }: { id: string }) => {
         display={"flex"}
         flexDirection={"column"}
         alignItems={"center"}
-        gap={1}
       >
         {agents?.length > 0 &&
           agents.map((agent, index) => (
@@ -74,9 +73,9 @@ const ChatPanel = ({ id }: { id: string }) => {
               key={index}
               color={"black"}
               py={1}
-              my={2}
+              mt={2}
               borderRadius={"8px"}
-              width={"300px"}
+              width={"250px"}
               bgcolor={id === agent?._id ? "#FCECDD" : "transparent"}
               border={"1px solid black"}
               sx={{ cursor: "pointer" }}
@@ -85,7 +84,7 @@ const ChatPanel = ({ id }: { id: string }) => {
                 else router.push(`/chat/${agent?._id}`);
               }}
             >
-              <Typography textAlign={"center"} fontSize={16}>
+              <Typography textAlign={"center"} fontSize={14}>
                 {agent?.name}
               </Typography>
             </Box>

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { Box } from "@mui/material";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ButtonComponent from "../Common/ButtonComponent";
 
 import Input from "../Common/Input";
@@ -9,17 +9,23 @@ import { SequentialAgentCanvas } from "./SequentialAgentCanvas";
 import { addEdge, useEdgesState, useNodesState } from "@xyflow/react";
 import { initialEdges, initialNodes } from "./SequentialAgentCanvas/data";
 import AgentCreateModal from "../Common/AgentCreateModal";
-import { createAgentic } from "@/actions/agenticAction";
-import { useRouter } from "next/navigation";
+import {
+  createAgentic,
+  editAgentic,
+  getAgenticById,
+} from "@/actions/agenticAction";
+import { useParams, useRouter } from "next/navigation";
 
 function SequentialAgentForm() {
+  const params = useParams();
+  const router = useRouter();
+
   const [agentName, setAgentName] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedNode, setSelectedNode] = useState<any>(null);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const router = useRouter();
 
   const onConnect = useCallback(
     (param: any) => setEdges((eds) => addEdge(param, eds)),
@@ -54,7 +60,7 @@ function SequentialAgentForm() {
       data: {
         fields: {
           name: `Agent ${agentNodes.length + 1}`,
-          model: "",
+          model: "gpt-4.1",
           instruction: "",
           temperature: 0.7,
           topP: 1.0,
@@ -106,8 +112,85 @@ function SequentialAgentForm() {
     );
   }, []);
 
+  const buildSequentialNodesAndEdges = (agentValue: any) => {
+    const agents = agentValue?.agents || [];
+
+    const newNodes: any[] = [];
+    const newEdges: any[] = [];
+
+    const START_X = 0;
+    const START_Y = 60;
+    const NODE_SPACING_X = 200;
+
+    newNodes.push({
+      id: "sequential-start",
+      type: "startNode",
+      position: { x: START_X, y: START_Y },
+      data: { label: "sequential-start" },
+    });
+
+    agents.forEach((agent: any, index: number) => {
+      const agentId = `middle-node-${index}`;
+      const posX = START_X + NODE_SPACING_X * (index + 1);
+
+      newNodes.push({
+        id: agentId,
+        type: "middleNode",
+        position: { x: posX, y: START_Y },
+        data: {
+          fields: {
+            name: agent.name,
+            model: agent.chatmodel,
+            instruction: agent.instruction || "",
+            temperature: parseFloat(agent.temperature),
+            topP: parseFloat(agent.topP),
+            tools: agent.tools || [],
+            maxOutputToken: parseInt(agent.maxTokens),
+            description: agent.description || "",
+          },
+        },
+      });
+
+      const sourceId =
+        index === 0 ? "sequential-start" : `middle-node-${index - 1}`;
+      newEdges.push(
+        index == 0 || index === agents.length - 1
+          ? {
+              id: `e${index}`,
+              source: sourceId,
+              target: agentId,
+            }
+          : {
+              id: `e${index}`,
+              source: sourceId,
+              target: agentId,
+              targetHandle: "input",
+            }
+      );
+    });
+
+    const outputNodeId = "sequential-output";
+    const outputPosX = START_X + NODE_SPACING_X * (agents.length + 1);
+    newNodes.push({
+      id: outputNodeId,
+      type: "outputNode",
+      position: { x: outputPosX, y: START_Y },
+      data: { label: "sequential-output" },
+    });
+
+    if (agents.length > 0) {
+      newEdges.push({
+        id: `e${agents.length}`,
+        source: `middle-node-${agents.length - 1}`,
+        target: outputNodeId,
+        targetHandle: "output",
+      });
+    }
+    setNodes(newNodes);
+    setEdges(newEdges);
+  };
+
   const handleSaveAgent = (id: string, values: any) => {
-    console.log(values);
     setNodes((prevNodes) =>
       prevNodes.map((node) =>
         node.id === id
@@ -128,6 +211,16 @@ function SequentialAgentForm() {
     setIsModalOpen(false);
     setSelectedNode(null);
   };
+
+  // api integration
+  const getAgentByID = async () => {
+    const response = await getAgenticById(params.id as string);
+    if (response) {
+      buildSequentialNodesAndEdges(response);
+      setAgentName(response.name);
+    }
+  };
+
   const handleCreateOrUpdateAgent = async () => {
     const agentNodes = nodes.filter((node) => node.data?.fields);
 
@@ -157,37 +250,80 @@ function SequentialAgentForm() {
       type: "sequential",
       agents,
     };
-    const response = await createAgentic(agentic);
-    if (response?.status === "success") {
+    let response;
+
+    if (params.id) {
+      console.log("editing", agentic);
+      response = await editAgentic(params.id as string, agentic);
+    } else {
+      console.log("creating", agentic);
+      response = await createAgentic(agentic);
+    }
+    console.log(response);
+    if (response.status === "success") {
       router.push(`/chat/${response.data}`);
     }
   };
 
+  useEffect(() => {
+    if (params.id) {
+      getAgentByID();
+    }
+  }, []);
+
   return (
-    <Box>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
       <Box
-        sx={{ px: 4, py: 2, display: "flex", flexDirection: "column", gap: 2 }}
+        sx={{
+          width: "800px",
+          px: 4,
+          py: 2,
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          border: "1px dashed #77696D",
+          borderRadius: "8px",
+          m: 2,
+        }}
       >
-        <Input
-          name="name"
-          label="Agent Name"
-          value={agentName}
-          placeholder="e.g., Customer Onboarding Flow"
-          onChange={(e) => {
-            setAgentName(e.target.value);
-          }}
-          width="40%"
-          showLabel
-        />
         <Box
           sx={{
-            height: "500px",
-            border: "1px dashed #77696D",
-            p: 2,
-            borderRadius: "8px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
         >
-          <ButtonComponent label="ask" onClick={sendMsg} />
+          <Input
+            name="name"
+            label="Agent Name"
+            value={agentName}
+            placeholder="e.g., Customer Onboarding Flow"
+            onChange={(e) => {
+              setAgentName(e.target.value);
+            }}
+            width="100%"
+            showLabel
+          />
+
+          <ButtonComponent
+            label="Add Agent"
+            onClick={addAgentNode}
+            width="140px"
+            height="40px"
+          />
+        </Box>
+        <Box
+          sx={{
+            height: "400px",
+          }}
+        >
           <SequentialAgentCanvas
             nodes={nodes}
             edges={edges}
@@ -199,12 +335,31 @@ function SequentialAgentForm() {
             handleDeleteNode={handleDeleteNode}
           />
         </Box>
-        <ButtonComponent
-          label="Create Agent"
-          onClick={handleCreateOrUpdateAgent}
-          width="150px"
-          height="40px"
-        />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          <ButtonComponent
+            label={"Back"}
+            onClick={() => {
+              router.push("/");
+            }}
+            width="150px"
+            height="50px"
+            color="#eee"
+            textColor="#000"
+          />
+          <ButtonComponent
+            label={params.id ? "Update" : "Create"}
+            onClick={handleCreateOrUpdateAgent}
+            width="150px"
+            height="50px"
+            disabled={agentName.trim().length === 0}
+          />
+        </Box>
 
         {selectedNode && (
           <AgentCreateModal

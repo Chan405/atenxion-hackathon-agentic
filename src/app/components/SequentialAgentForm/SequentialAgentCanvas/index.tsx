@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React from "react";
-import { Controls, ReactFlow, ReactFlowProvider } from "@xyflow/react";
+import { ReactFlow, ReactFlowProvider } from "@xyflow/react";
 
 import "@xyflow/react/dist/style.css";
 
 import { Box } from "@mui/material";
 import { nodeTypes } from "./data";
-import ButtonComponent from "../../Common/ButtonComponent";
 
 interface CanvasProps {
   nodes: any[];
@@ -22,7 +21,7 @@ interface CanvasProps {
 const Canvas = ({
   nodes,
   edges,
-  addAgentNode,
+
   onNodesChange,
   onEdgesChange,
   onConnect,
@@ -31,7 +30,7 @@ const Canvas = ({
 }: CanvasProps) => {
   return (
     <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
-      <Box
+      {/* <Box
         sx={{
           position: "absolute",
           top: 6,
@@ -44,7 +43,7 @@ const Canvas = ({
           onClick={addAgentNode}
           width="140px"
         />
-      </Box>
+      </Box> */}
 
       <ReactFlow
         nodes={nodes}
@@ -55,16 +54,7 @@ const Canvas = ({
         onConnect={onConnect}
         onNodeDoubleClick={(_, node) => handleNodeDoubleClick(node)}
         onNodeMouseEnter={(_, node) => handleDeleteNode(node)}
-      >
-        <Controls />
-
-        {/* <AgentCreateModal
-          open={isModalOpen}
-          handleClose={handleModalClose}
-          handleSubmit={() => {}}
-        /> */}
-        {/* <Background variant="dots" gap={12} size={1} /> */}
-      </ReactFlow>
+      ></ReactFlow>
     </Box>
   );
 };
