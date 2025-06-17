@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import React, { useCallback, useEffect, useState } from "react";
 import ButtonComponent from "../Common/ButtonComponent";
 import { ParallelAgentCanvas } from "./ParallelAgentCanvas";
@@ -352,6 +352,7 @@ function ParallelAgentForm() {
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
+        bgcolor: "#052659",
       }}
     >
       <Box
@@ -365,38 +366,55 @@ function ParallelAgentForm() {
           border: "1px dashed #77696D",
           borderRadius: "8px",
           m: 2,
+          bgcolor: "white",
         }}
       >
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center",
+            alignItems: "end",
+            borderBottom: "1px solid #052659",
+            pb: 3,
           }}
         >
-          <Input
-            name="name"
-            label="Agent Name"
-            value={agentName}
-            placeholder="e.g., Customer Onboarding Flow"
-            onChange={(e) => {
-              setAgentName(e.target.value);
-            }}
-            width="100%"
-            showLabel
-          />
+          <Box
+            display={"flex"}
+            flexDirection={"column"}
+            gap={1}
+            alignItems={"start"}
+            justifyContent={"center"}
+          >
+            <Typography fontWeight={600} color="#052659">
+              Agent Name
+            </Typography>
+            <Input
+              name="name"
+              label="Agent Name"
+              value={agentName}
+              placeholder="e.g., Customer Onboarding Flow"
+              onChange={(e) => {
+                setAgentName(e.target.value);
+              }}
+              width="100%"
+              showLabel={false}
+            />
+          </Box>
 
           <ButtonComponent
             label="Add Agent"
             onClick={addAgentNode}
-            width="140px"
+            width="120px"
             height="40px"
+            color="#052659"
+            borderRadius="8px"
           />
         </Box>
 
         <Box
           sx={{
             height: "400px",
+            mt: 1,
           }}
         >
           <ParallelAgentCanvas
@@ -418,20 +436,23 @@ function ParallelAgentForm() {
           }}
         >
           <ButtonComponent
-            label={"Back"}
+            label={"Back to home"}
             onClick={() => {
               router.push("/");
             }}
-            width="150px"
+            borderRadius="8px"
+            width="200px"
             height="50px"
             color="#eee"
             textColor="#000"
           />
           <ButtonComponent
-            label={params.id ? "Update" : "Create"}
+            label={params.id ? "Update Agent" : "Create Multi Agent"}
             onClick={handleCreateOrUpdateAgent}
-            width="150px"
+            width="200px"
             height="50px"
+            borderRadius="8px"
+            color="#052659"
             disabled={agentName.trim().length === 0}
           />
         </Box>

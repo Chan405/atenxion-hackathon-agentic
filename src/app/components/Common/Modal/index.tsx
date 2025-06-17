@@ -108,7 +108,7 @@ function ModalContainer({
                   <ArrowBackIcon
                     onClick={handleClose}
                     style={{
-                      color: "#636464",
+                      color: "#052659",
                       fontSize: "20px",
                       cursor: "pointer",
                     }}
@@ -116,7 +116,13 @@ function ModalContainer({
                 </Box>
               )}
               {/* <SubTitle text={title} /> */}
-              <SubHeading fontSize="18px" textAlign="center" flex={1} ml={1}>
+              <SubHeading
+                fontSize="18px"
+                textAlign="center"
+                color="#052659"
+                flex={1}
+                ml={1}
+              >
                 {title}
               </SubHeading>
               <Box
@@ -163,7 +169,7 @@ function ModalContainer({
                 width="105px"
                 height="42px"
                 background="#f2f2f2"
-                borderRadius="80px"
+                borderRadius="8px"
                 showBorder={false}
                 onClick={handleClose}
               />
@@ -172,6 +178,7 @@ function ModalContainer({
               label={confirmBtnText}
               width={buttonWidth ? buttonWidth : "120px"}
               height="41px"
+              color="#052659"
               borderRadius="8px"
               onClick={confirmBtnHandler}
               loading={loading}

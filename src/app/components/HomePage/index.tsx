@@ -4,11 +4,12 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import AgentTypeCard from "./AgentTypeCard";
 import ButtonComponent from "../Common/ButtonComponent";
+import { BsChatSquareQuote } from "react-icons/bs";
 
 function HomePage() {
   const router = useRouter();
 
-  const [agentType, setAgentType] = useState<number | null>(null);
+  const [agentType, setAgentType] = useState<number | null>(0);
 
   const handleRoute = () => {
     const route = agentType === 0 ? "/sequential-agent" : "/parallel-agent";
@@ -22,7 +23,7 @@ function HomePage() {
         alignItems: "center",
         height: "100vh",
         bgcolor: "#052659",
-        // bgcolor: "#374c7c",
+        position: "relative",
       }}
     >
       <Box>
@@ -30,8 +31,9 @@ function HomePage() {
           textAlign="center"
           variant="h2"
           component="h1"
-          color="#C1e8ff"
-          mb={2}
+          color="white"
+          mt={-5}
+          mb={15}
           sx={{
             fontWeight: "bold",
             fontSize: {
@@ -40,13 +42,10 @@ function HomePage() {
               md: "3rem",
             },
           }}
-
-          // fontSize={{ xl: "28px", lg: "24px", xs: "22px" }}
-          // fontWeight="bold"
         >
-          Atenxion Multi Agent
+          Atenxion Multi Agents
         </Typography>
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", gap: 5 }}>
           <Box onClick={() => setAgentType(0)} mb={3}>
             <AgentTypeCard
               type="Sequential Agent"
@@ -75,6 +74,22 @@ function HomePage() {
             textColor="#052659"
           />
         </Box>
+      </Box>
+      <Box
+        position={"absolute"}
+        right={20}
+        bottom={20}
+        width={"60px"}
+        height={"60px"}
+        borderRadius={"50%"}
+        display={"flex"}
+        bgcolor={"white"}
+        alignItems={"center"}
+        justifyContent={"center"}
+        sx={{ cursor: "pointer" }}
+        onClick={() => router.push("/chat/6850d2f824761bc2d899eddb")}
+      >
+        <BsChatSquareQuote color="black" size={28} />
       </Box>
     </Box>
   );

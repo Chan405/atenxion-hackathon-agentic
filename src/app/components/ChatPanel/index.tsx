@@ -67,17 +67,27 @@ const ChatPanel = ({ id }: { id: string }) => {
         flexDirection={"column"}
         alignItems={"center"}
       >
+        <Typography
+          textAlign={"center"}
+          fontSize={20}
+          fontWeight={800}
+          color="#052659"
+          mt={5}
+          mb={3}
+        >
+          Atenxion Multi Agents
+        </Typography>
         {agents?.length > 0 &&
           agents.map((agent, index) => (
             <Box
               key={index}
-              color={"black"}
+              color={id === agent?._id ? "white" : "#052659"}
               py={1}
               mt={2}
               borderRadius={"8px"}
               width={"250px"}
-              bgcolor={id === agent?._id ? "#FCECDD" : "transparent"}
-              border={"1px solid black"}
+              bgcolor={id === agent?._id ? "#052659" : "transparent"}
+              border={"1px solid #052659"}
               sx={{ cursor: "pointer" }}
               onClick={() => {
                 if (id === agent?._id) return;
@@ -89,6 +99,25 @@ const ChatPanel = ({ id }: { id: string }) => {
               </Typography>
             </Box>
           ))}
+        <Box
+          color={"white"}
+          py={1}
+          mt={2}
+          borderRadius={"8px"}
+          width={"250px"}
+          bgcolor={"#052659"}
+          border={"1px solid #052659"}
+          sx={{ cursor: "pointer" }}
+          onClick={() => {
+            router.push("/");
+          }}
+          position={"absolute"}
+          bottom={25}
+        >
+          <Typography textAlign={"center"} fontSize={14}>
+            Home
+          </Typography>
+        </Box>
       </Box>
       <Box
         width={"70%"}
@@ -96,8 +125,7 @@ const ChatPanel = ({ id }: { id: string }) => {
         border={"1px solid #E6E6E6"}
         margin={"auto"}
         borderRadius={"12px"}
-        p={1}
-        gap={2}
+        gap={1}
         display={"flex"}
         flexDirection={"column"}
         alignItems={"center"}
@@ -106,19 +134,27 @@ const ChatPanel = ({ id }: { id: string }) => {
       >
         <Box
           width={"100%"}
-          height={"50px"}
+          height={"70px"}
           borderBottom={"1px solid #e6e6e6"}
           display={"flex"}
+          bgcolor={"#052659"}
+          borderRadius={"8px 8px 0px 0px"}
           alignContent={"center"}
           justifyContent={"space-between"}
         >
-          <Typography alignSelf={"center"} pl={2} fontWeight={600}>
+          <Typography
+            alignSelf={"center"}
+            color="white"
+            pl={2}
+            fontWeight={600}
+          >
             {currentAgent?.name || ""}
           </Typography>
           <Typography
             sx={{ cursor: "pointer" }}
             alignSelf={"center"}
             pr={2}
+            color="white"
             fontWeight={600}
             onClick={() =>
               router.push(`/${currentAgent?.type}-agent/${currentAgent?._id}`)
@@ -132,7 +168,7 @@ const ChatPanel = ({ id }: { id: string }) => {
           height={"100%"}
           borderRadius={"12px"}
           boxSizing={"border-box"}
-          p={1}
+          p={2}
           maxHeight={"100%"}
           overflow={"auto"}
           ref={messageRef}

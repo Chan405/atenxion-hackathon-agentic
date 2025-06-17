@@ -32,13 +32,12 @@ const SendMessageComponent = ({
         bgcolor={"white"}
         padding={"12px 16px 12px 16px"}
         border="1px solid #E6E6E6"
-        borderRadius={"8px"}
+        borderRadius={"0px 0px 12px 12px"}
         display={"flex"}
         justifyContent={"start"}
         alignItems={"center"}
         marginX={1}
         width={"100%"}
-        boxShadow={"0px 4px 9px rgba(0,0,0,0.08)"}
       >
         <Box
           display={"flex"}
@@ -90,7 +89,7 @@ const SendMessageComponent = ({
                   }
             }
           >
-            <IoSend color={"#636464"} />
+            <IoSend color={question?.length > 0 ? "#052659" : "gray"} />
           </Box>
         </Box>
       </Box>

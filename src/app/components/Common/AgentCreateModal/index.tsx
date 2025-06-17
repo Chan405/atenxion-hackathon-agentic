@@ -155,7 +155,6 @@ function AgentCreateModal({
                 <TagInput
                   values={values?.outputKeys}
                   onChangeHandler={(newValue) => {
-                    console.log(newValue);
                     setFieldValue("outputKeys", newValue);
                   }}
                   placeholder=""
@@ -163,6 +162,7 @@ function AgentCreateModal({
               </Box>
               <Box
                 display={"flex"}
+                mt={-5}
                 gap={2}
                 width={"100%"}
                 alignItems={"center"}
