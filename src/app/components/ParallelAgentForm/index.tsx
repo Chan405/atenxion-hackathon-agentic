@@ -92,6 +92,7 @@ function ParallelAgentForm() {
           tools: [],
           maxOutputToken: 100,
           description: "",
+          outputKeys: [],
         },
       },
     };
@@ -116,7 +117,6 @@ function ParallelAgentForm() {
   };
 
   const handleSaveAgent = (id: string, values: any) => {
-    console.log(values);
     setNodes((prevNodes) =>
       prevNodes.map((node) =>
         node.id === id
@@ -184,6 +184,7 @@ function ParallelAgentForm() {
             tools: agent.tools || [],
             maxOutputToken: parseInt(agent.maxTokens),
             description: agent.description || "",
+            outputKeys: agent.outputKeys || "",
           },
         },
       });
@@ -267,8 +268,6 @@ function ParallelAgentForm() {
       getAgentByID();
     }
   }, []);
-
-  console.log({ responsePickerPrompt });
 
   return (
     <Box

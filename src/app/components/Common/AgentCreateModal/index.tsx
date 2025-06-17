@@ -7,12 +7,14 @@ import SelectComponent from "../SelectComponent";
 import TextArea from "../TextArea";
 import BodyText from "../../Typeface/BodyText";
 import { Formik } from "formik";
+import TagInput from "../TagInput";
 
 interface ModalProps {
   open: boolean;
   handleClose: () => void;
   handleSaveAgent: (id: string, values: any) => void;
   selectedNode: any;
+  removeAgent: any;
 }
 
 function AgentCreateModal({
@@ -20,6 +22,7 @@ function AgentCreateModal({
   handleClose,
   selectedNode,
   handleSaveAgent,
+  removeAgent,
 }: ModalProps) {
   const modelLists = [
     { value: "gpt-4.1", label: "GPT 4.1" },
@@ -45,13 +48,13 @@ function AgentCreateModal({
     tools: values.tools || [],
     maxOutputToken: values.maxOutputToken || 16000,
     description: values.description || "",
+    outputKeys: [],
   };
 
   return (
     <Formik
       initialValues={initialValues}
       onSubmit={(values) => {
-        console.log(values);
         handleSaveAgent(selectedNode.id, values);
       }}
     >
@@ -82,6 +85,8 @@ function AgentCreateModal({
             cancelBtnText="Cancel"
             confirmBtnText={"Save"}
             confirmBtnHandler={(values) => handleSubmit(values)}
+            confirmDelete={() => removeAgent(selectedNode.id)}
+            showDeleteBtn
           >
             <Box
               width={"100%"}
@@ -140,6 +145,20 @@ function AgentCreateModal({
                   height="120px"
                   placeholder="Instruct your agent what to do"
                   onChange={handleChange}
+                />
+              </Box>
+
+              <Box display={"flex"} flexDirection={"column"} gap={1}>
+                <BodyText variant="small" weight={"medium"}>
+                  Output Keys
+                </BodyText>
+                <TagInput
+                  values={values?.outputKeys}
+                  onChangeHandler={(newValue) => {
+                    console.log(newValue);
+                    setFieldValue("outputKeys", newValue);
+                  }}
+                  placeholder=""
                 />
               </Box>
               <Box
