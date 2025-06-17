@@ -41,10 +41,10 @@ function ButtonComponent({
         width: width,
         textTransform: "none",
         height: height || "48px",
-        borderRadius: borderRadius || "80px",
         background: disabled ? "#BBB9BA" : color,
         letterSpacing: 0.5,
         boxShadow: "none",
+        borderRadius: "40px",
         px: "16px",
         py: "12px",
       }}
@@ -58,9 +58,9 @@ function ButtonComponent({
         // </BodyText>
         <Typography
           sx={{
-            fontSize: { md: "14px", lg: "14px", xl: "16px" },
+            fontSize: { md: "14px", lg: "16px", xl: "16px" },
             color: textColor,
-            fontWeight: "600",
+            fontWeight: "700",
           }}
         >
           {label}

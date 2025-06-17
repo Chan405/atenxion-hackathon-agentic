@@ -208,7 +208,7 @@ function SequentialAgentForm() {
           label="Create Agent"
           onClick={handleCreateOrUpdateAgent}
           width="150px"
-          height="40px"
+          height="50px"
         />
 
         {selectedNode && (
