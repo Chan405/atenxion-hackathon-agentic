@@ -238,6 +238,7 @@ function ParallelAgentForm() {
           description: fields.description,
           topP: String(fields.topP),
           maxTokens: String(fields.maxOutputToken),
+          outputKeys: fields.outputKeys,
         };
       }
     });
@@ -268,6 +269,81 @@ function ParallelAgentForm() {
       getAgentByID();
     }
   }, []);
+
+  const handleDeleteNode = useCallback(
+    (nodeId: string) => {
+      const agentNodes = nodes.filter((node) => node.data?.fields);
+      if (agentNodes.length < 2) return;
+
+      setNodes((nds) => {
+        const deletedNode = nds.find((n) => n.id === nodeId);
+        const isMiddleNode = deletedNode?.type === "middleNode";
+
+        const updatedNodes = nds.filter((n) => n.id !== nodeId);
+
+        if (!isMiddleNode) return updatedNodes;
+
+        // If we deleted a middle node, update output node position
+        const remainingMiddleNodes = updatedNodes
+          .filter((n) => n.type === "middleNode")
+          .sort((a, b) => a.position.x - b.position.x);
+
+        if (remainingMiddleNodes.length > 0) {
+          const lastNode =
+            remainingMiddleNodes[remainingMiddleNodes.length - 1];
+          return updatedNodes.map((n) =>
+            n.id === "sequential-output"
+              ? {
+                  ...n,
+                  position: {
+                    x: lastNode.position.x + 200,
+                    y: lastNode.position.y,
+                  },
+                }
+              : n
+          );
+        }
+
+        return updatedNodes;
+      });
+
+      setEdges((eds) => {
+        // Remove any edge connected to the deleted node
+        let filteredEdges = eds.filter(
+          (e) => e.source !== nodeId && e.target !== nodeId
+        );
+
+        // If a middle node was deleted, reconnect the last one to output
+        const remainingMiddleNodes = nodes
+          .filter((n) => n.id !== nodeId && n.type === "middleNode")
+          .sort((a, b) => a.position.x - b.position.x);
+
+        if (remainingMiddleNodes.length > 0) {
+          const lastNode =
+            remainingMiddleNodes[remainingMiddleNodes.length - 1];
+
+          // Remove any existing edge from last middle node to output to prevent duplicates
+          filteredEdges = filteredEdges.filter(
+            (e) =>
+              !(e.source === lastNode.id && e.target === "sequential-output")
+          );
+
+          // Add the edge from last remaining middle node to output
+          filteredEdges.push({
+            id: `e-${lastNode.id}-sequential-output`,
+            source: lastNode.id,
+            target: "sequential-output",
+          });
+        }
+
+        return filteredEdges;
+      });
+
+      setSelectedNode(null);
+      setIsModalOpen(false);
+    },
+    [nodes]
+  );
 
   return (
     <Box
@@ -366,6 +442,7 @@ function ParallelAgentForm() {
             handleClose={handleModalClose}
             handleSaveAgent={handleSaveAgent}
             selectedNode={selectedNode}
+            removeAgent={handleDeleteNode}
           />
         )}
 

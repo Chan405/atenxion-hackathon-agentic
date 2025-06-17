@@ -35,6 +35,7 @@ export const initialNodes = [
         tools: [],
         maxOutputToken: 100,
         description: "",
+        outputKeys: [],
       },
     },
   },

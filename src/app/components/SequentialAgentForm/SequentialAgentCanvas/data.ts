@@ -23,6 +23,7 @@ export const initialNodes = [
         tools: [],
         maxOutputToken: 16000,
         description: "",
+        outputKeys: [],
       },
     },
   },
