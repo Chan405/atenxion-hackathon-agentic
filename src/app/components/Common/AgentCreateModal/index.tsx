@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import ModalContainer from "../Modal";
 import Input from "../Input";
-import { Box } from "@mui/material";
+import { Box, Checkbox, FormControlLabel } from "@mui/material";
 import SelectComponent from "../SelectComponent";
 import TextArea from "../TextArea";
 import BodyText from "../../Typeface/BodyText";
@@ -46,7 +46,6 @@ function AgentCreateModal({
     maxOutputToken: values.maxOutputToken || 16000,
     description: values.description || "",
   };
-  console.log(selectedNode);
 
   return (
     <Formik
@@ -152,11 +151,12 @@ function AgentCreateModal({
                 <Input
                   type="number"
                   label="Max Output Token"
-                  name="maxOutputTokens"
+                  name="maxOutputToken"
                   value={values.maxOutputToken}
                   showLabel
                   onChange={handleChange}
                 />
+
                 <Input
                   type="number"
                   label="Temperature"
@@ -180,13 +180,40 @@ function AgentCreateModal({
               </Box>
 
               <Box width={"100%"}>
-                <SelectComponent
+                {/* <SelectComponent
                   label="Tools"
                   name="tools"
                   value={values.tools}
                   onChange={(e) => setFieldValue("tools", e.target.value)}
                   options={toolLists}
-                />
+                /> */}
+                <Box>
+                  <BodyText variant="small" mb={1}>
+                    Tools
+                  </BodyText>
+                  {toolLists.map((tool) => (
+                    <FormControlLabel
+                      key={tool.value}
+                      color="#000"
+                      control={
+                        <Checkbox
+                          checked={values.tools.includes(tool.value)}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            const newValue = checked
+                              ? [...values.tools, tool.value]
+                              : values.tools.filter(
+                                  (val: any) => val !== tool.value
+                                );
+                            setFieldValue("tools", newValue);
+                          }}
+                          name="tools"
+                        />
+                      }
+                      label={tool.label}
+                    />
+                  ))}
+                </Box>
               </Box>
             </Box>
           </ModalContainer>

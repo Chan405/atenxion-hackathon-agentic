@@ -105,7 +105,7 @@ function Input({
           placeholder={placeholder}
           onChange={onChange}
           onKeyDown={onKeyDown}
-          type="text"
+          type={type}
           style={{
             fontSize: isMobile ? "14px" : "16px",
             width: "100%",

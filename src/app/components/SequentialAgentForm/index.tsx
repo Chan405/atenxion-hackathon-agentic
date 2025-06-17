@@ -14,11 +14,11 @@ import {
   editAgentic,
   getAgenticById,
 } from "@/actions/agenticAction";
-import { chat } from "@/app/service/chatService";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 function SequentialAgentForm() {
   const params = useParams();
+  const router = useRouter();
 
   const [agentName, setAgentName] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,7 +60,7 @@ function SequentialAgentForm() {
       data: {
         fields: {
           name: `Agent ${agentNodes.length + 1}`,
-          model: "",
+          model: "gpt-4.1",
           instruction: "",
           temperature: 0.7,
           topP: 1,
@@ -119,8 +119,8 @@ function SequentialAgentForm() {
     const newEdges: any[] = [];
 
     const START_X = 0;
-    const START_Y = 70;
-    const NODE_SPACING_X = 240;
+    const START_Y = 60;
+    const NODE_SPACING_X = 200;
 
     newNodes.push({
       id: "sequential-start",
@@ -136,7 +136,7 @@ function SequentialAgentForm() {
       newNodes.push({
         id: agentId,
         type: "middleNode",
-        position: { x: posX, y: START_Y - 10 },
+        position: { x: posX, y: START_Y },
         data: {
           fields: {
             name: agent.name,
@@ -186,7 +186,6 @@ function SequentialAgentForm() {
         targetHandle: "output",
       });
     }
-    console.log(newEdges);
     setNodes(newNodes);
     setEdges(newEdges);
   };
@@ -254,8 +253,10 @@ function SequentialAgentForm() {
     let response;
 
     if (params.id) {
+      console.log("editing", agentic);
       response = await editAgentic(params.id as string, agentic);
     } else {
+      console.log("creating", agentic);
       response = await createAgentic(agentic);
     }
     console.log(response);
@@ -267,38 +268,59 @@ function SequentialAgentForm() {
     }
   }, []);
 
-  const sendMsg = async () => {
-    const res = await chat(
-      "6850b4b11db8349f0756bc0c",
-      "tell me a horror story"
-    );
-    console.log("res", res);
-  };
   return (
-    <Box>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
       <Box
-        sx={{ px: 4, py: 2, display: "flex", flexDirection: "column", gap: 2 }}
+        sx={{
+          width: "800px",
+          px: 4,
+          py: 2,
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          border: "1px dashed #77696D",
+          borderRadius: "8px",
+          m: 2,
+        }}
       >
-        <Input
-          name="name"
-          label="Agent Name"
-          value={agentName}
-          placeholder="e.g., Customer Onboarding Flow"
-          onChange={(e) => {
-            setAgentName(e.target.value);
-          }}
-          width="40%"
-          showLabel
-        />
         <Box
           sx={{
-            height: "500px",
-            border: "1px dashed #77696D",
-            p: 2,
-            borderRadius: "8px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
         >
-          <ButtonComponent label="ask" onClick={sendMsg} />
+          <Input
+            name="name"
+            label="Agent Name"
+            value={agentName}
+            placeholder="e.g., Customer Onboarding Flow"
+            onChange={(e) => {
+              setAgentName(e.target.value);
+            }}
+            width="100%"
+            showLabel
+          />
+
+          <ButtonComponent
+            label="Add Agent"
+            onClick={addAgentNode}
+            width="140px"
+            height="40px"
+          />
+        </Box>
+        <Box
+          sx={{
+            height: "400px",
+          }}
+        >
           <SequentialAgentCanvas
             nodes={nodes}
             edges={edges}
@@ -310,12 +332,31 @@ function SequentialAgentForm() {
             handleDeleteNode={handleDeleteNode}
           />
         </Box>
-        <ButtonComponent
-          label={params.id ? "Update" : "Create"}
-          onClick={handleCreateOrUpdateAgent}
-          width="150px"
-          height="50px"
-        />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          <ButtonComponent
+            label={"Back"}
+            onClick={() => {
+              router.push("/");
+            }}
+            width="150px"
+            height="50px"
+            color="#eee"
+            textColor="#000"
+          />
+          <ButtonComponent
+            label={params.id ? "Update" : "Create"}
+            onClick={handleCreateOrUpdateAgent}
+            width="150px"
+            height="50px"
+            disabled={agentName.trim().length === 0}
+          />
+        </Box>
 
         {selectedNode && (
           <AgentCreateModal

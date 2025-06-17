@@ -6,16 +6,16 @@ export const initialNodes = [
   {
     id: "sequential-start",
     type: "startNode",
-    position: { x: 0, y: 70 },
+    position: { x: 0, y: 60 },
     data: { label: "sequential-start" },
   },
   {
     id: "middle-node",
     type: "middleNode",
-    position: { x: 200, y: 60 },
+    position: { x: 160, y: 60 },
     data: {
       fields: {
-        name: "Agent 1",
+        name: "Agent 0",
         model: "gpt-4.1",
         instruction: "",
         temperature: 0.7,
@@ -29,7 +29,7 @@ export const initialNodes = [
   {
     id: "sequential-output",
     type: "outputNode",
-    position: { x: 440, y: 70 },
+    position: { x: 360, y: 60 },
     data: { label: "sequential-output" },
   },
 ];

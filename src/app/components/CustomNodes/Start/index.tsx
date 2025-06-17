@@ -8,7 +8,6 @@ function StartNode() {
   return (
     <Box
       sx={{
-        width: "100px",
         height: "50px",
         backgroundColor: "#fff",
         borderRadius: "8px",
@@ -17,7 +16,7 @@ function StartNode() {
         justifyContent: "center",
         alignItems: "center",
         gap: 1,
-        px: 4,
+        px: 2,
       }}
     >
       <PlayCircleFilledWhiteIcon sx={{ color: "#7ee787" }} />

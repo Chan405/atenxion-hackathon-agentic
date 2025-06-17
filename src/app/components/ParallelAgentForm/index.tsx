@@ -18,10 +18,11 @@ import {
   editAgentic,
   getAgenticById,
 } from "@/actions/agenticAction";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import ResponsePickerPromptModal from "../Common/ResponsePickerPromptModal";
 
 const START_X = 0;
-const START_Y = 200;
+const START_Y = 40;
 
 const OUTPUT_X = 680;
 
@@ -30,6 +31,7 @@ const MERGE_Y = 200;
 
 function ParallelAgentForm() {
   const params = useParams();
+  const router = useRouter();
 
   const [agentName, setAgentName] = useState<string>("");
 
@@ -42,6 +44,9 @@ function ParallelAgentForm() {
   );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPromptModalOpen, setIsPromptModalOpen] = useState(false);
+
+  const [responsePickerPrompt, setResponsePickerPrompt] = useState("");
   const [selectedNode, setSelectedNode] = useState<any>(null);
 
   const handleNodeDoubleClick = (node: any) => {
@@ -49,13 +54,23 @@ function ParallelAgentForm() {
     setIsModalOpen(true);
   };
 
+  const handleMergeDoubleClick = (node: any) => {
+    setSelectedNode(node);
+    console.log(node);
+    setIsPromptModalOpen(true);
+  };
+
   const handleModalClose = () => {
     setIsModalOpen(false);
     setSelectedNode(null);
   };
 
+  const handlePromptChange = (e: any) => {
+    setResponsePickerPrompt(e.target.value);
+  };
+
   const addAgentNode = () => {
-    const START_Y = 200;
+    const START_Y = 60;
     const agentNodes = nodes.filter((n) => n.type === "middleNode");
     const count = agentNodes.length;
     const newNodeId = `middle-node-${Date.now()}`;
@@ -70,7 +85,7 @@ function ParallelAgentForm() {
       data: {
         fields: {
           name: `Agent ${count + 1}`,
-          model: "",
+          model: "gpt-4.1",
           instruction: "",
           temperature: 0.5,
           topP: 10,
@@ -198,6 +213,7 @@ function ParallelAgentForm() {
       // setAgentValue(response);
       buildNodesAndEdges(response);
       setAgentName(response.name);
+      setResponsePickerPrompt(response.responsePickerPrompt);
     }
   };
 
@@ -227,6 +243,7 @@ function ParallelAgentForm() {
 
     const agentic = {
       name: agentName,
+      responsePickerPrompt,
       type: "parallel",
       agents,
     };
@@ -251,29 +268,60 @@ function ParallelAgentForm() {
     }
   }, []);
 
+  console.log({ responsePickerPrompt });
+
   return (
-    <Box>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
       <Box
-        sx={{ px: 4, py: 2, display: "flex", flexDirection: "column", gap: 2 }}
+        sx={{
+          width: "800px",
+          px: 4,
+          py: 2,
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          border: "1px dashed #77696D",
+          borderRadius: "8px",
+          m: 2,
+        }}
       >
-        <Input
-          name="name"
-          label="Agent Name"
-          value={agentName}
-          placeholder="e.g., Customer Onboarding Flow"
-          onChange={(e) => {
-            setAgentName(e.target.value);
-          }}
-          width="40%"
-          showLabel
-        />
-        {/* <ButtonComponent onClick={sendMessage} label="Send" /> */}
         <Box
           sx={{
-            height: "500px",
-            border: "1px dashed #77696D",
-            p: 2,
-            borderRadius: "8px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <Input
+            name="name"
+            label="Agent Name"
+            value={agentName}
+            placeholder="e.g., Customer Onboarding Flow"
+            onChange={(e) => {
+              setAgentName(e.target.value);
+            }}
+            width="100%"
+            showLabel
+          />
+
+          <ButtonComponent
+            label="Add Agent"
+            onClick={addAgentNode}
+            width="140px"
+            height="40px"
+          />
+        </Box>
+
+        <Box
+          sx={{
+            height: "400px",
           }}
         >
           <ParallelAgentCanvas
@@ -284,16 +332,36 @@ function ParallelAgentForm() {
             onConnect={onConnect}
             addAgentNode={addAgentNode}
             handleNodeDoubleClick={handleNodeDoubleClick}
+            handleMergeDoubleClick={handleMergeDoubleClick}
           />
         </Box>
-        <ButtonComponent
-          label={params.id ? "Update" : "Create"}
-          onClick={handleCreateOrUpdateAgent}
-          width="150px"
-          height="50px"
-        />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          <ButtonComponent
+            label={"Back"}
+            onClick={() => {
+              router.push("/");
+            }}
+            width="150px"
+            height="50px"
+            color="#eee"
+            textColor="#000"
+          />
+          <ButtonComponent
+            label={params.id ? "Update" : "Create"}
+            onClick={handleCreateOrUpdateAgent}
+            width="150px"
+            height="50px"
+            disabled={agentName.trim().length === 0}
+          />
+        </Box>
 
-        {selectedNode && (
+        {selectedNode && isModalOpen && (
           <AgentCreateModal
             open={isModalOpen}
             handleClose={handleModalClose}
@@ -301,6 +369,23 @@ function ParallelAgentForm() {
             selectedNode={selectedNode}
           />
         )}
+
+        {selectedNode &&
+          selectedNode.id === "merge-node" &&
+          isPromptModalOpen && (
+            <ResponsePickerPromptModal
+              open={isPromptModalOpen}
+              handleClose={() => {
+                setSelectedNode(null);
+                setIsPromptModalOpen(false);
+              }}
+              prompt={responsePickerPrompt}
+              handleChange={handlePromptChange}
+              handleSavePrompt={() => {
+                setIsPromptModalOpen(false);
+              }}
+            />
+          )}
       </Box>
     </Box>
   );

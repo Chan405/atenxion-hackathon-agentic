@@ -11,7 +11,7 @@ const AgentNode = ({ data }: any) => {
   return (
     <Box
       sx={{
-        height: "70px",
+        height: "50px",
         backgroundColor: "#fff",
         borderRadius: "8px",
         border: "2px solid #4dd0e1",
@@ -19,7 +19,7 @@ const AgentNode = ({ data }: any) => {
         justifyContent: "start",
         alignItems: "center",
         gap: 1,
-        px: 4,
+        px: 2,
         position: "relative",
       }}
       onDoubleClick={data.onDoubleClick}
@@ -59,9 +59,7 @@ const AgentNode = ({ data }: any) => {
           color="#616161s"
           whiteSpace={"nowrap"}
         >
-          {data.fields.name === "gemini-2.5-flash-preview-04-17"
-            ? "Gemini"
-            : data.fields.name}
+          {data.fields.name || ""}
         </BodyText>
         <BodyText
           variant="small"
@@ -72,7 +70,7 @@ const AgentNode = ({ data }: any) => {
           borderRadius={"12px"}
           px={2}
         >
-          {data.fields.model || ""}
+          {data.fields.model.includes("gemini") ? "Gemini" : data.fields.model}
         </BodyText>
       </Box>
       <Handle type="source" position={Position.Right} id={"right"} />

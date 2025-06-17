@@ -13,11 +13,9 @@ export async function createAgentic(agentic: any) {
   }
 }
 
-export async function editAgentic(agentId: string, data: any) {
+export async function editAgentic(agentId: string, agentic: any) {
   try {
-    const response = await axiosServerInstance.post(`/${agentId}`, {
-      agentic: data,
-    });
+    const response = await axiosServerInstance.put(`/${agentId}`, agentic);
     return response?.data;
   } catch (error: any) {
     console.log("error", error?.response?.data);

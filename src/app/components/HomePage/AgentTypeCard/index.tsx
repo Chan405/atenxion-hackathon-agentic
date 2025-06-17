@@ -27,7 +27,6 @@ function AgentTypeCard({ type, selected, description, img }: CardProps) {
         gap: 1,
         cursor: "pointer",
         color: "#fff",
-        // bgcolor: "#21386e",
         bgcolor: "#C1e8ff",
       }}
     >

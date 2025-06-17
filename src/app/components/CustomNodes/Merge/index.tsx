@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Box } from "@mui/material";
 import { Handle, Position } from "@xyflow/react";
 import React from "react";
 import BodyText from "../../Typeface/BodyText";
-
-function MergeNode() {
+import JoinFullIcon from "@mui/icons-material/JoinFull";
+function MergeNode({ data }: any) {
   return (
     <Box
       sx={{
@@ -18,8 +19,9 @@ function MergeNode() {
         gap: 1,
         px: 4,
       }}
+      onDoubleClick={data.handleMergeDoubleClick}
     >
-      {/* <PlayCircleFilledWhiteIcon sx={{ color: "#7ee787" }} /> */}
+      <JoinFullIcon sx={{ color: "#4160e6" }} />
       <BodyText variant="medium" weight="semibold" color="#616161s">
         Merge
       </BodyText>
