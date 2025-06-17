@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { Box } from "@mui/material";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ButtonComponent from "../Common/ButtonComponent";
 
 import Input from "../Common/Input";
@@ -9,10 +9,17 @@ import { SequentialAgentCanvas } from "./SequentialAgentCanvas";
 import { addEdge, useEdgesState, useNodesState } from "@xyflow/react";
 import { initialEdges, initialNodes } from "./SequentialAgentCanvas/data";
 import AgentCreateModal from "../Common/AgentCreateModal";
-import { createAgentic } from "@/actions/agenticAction";
+import {
+  createAgentic,
+  editAgentic,
+  getAgenticById,
+} from "@/actions/agenticAction";
 import { chat } from "@/app/service/chatService";
+import { useParams } from "next/navigation";
 
 function SequentialAgentForm() {
+  const params = useParams();
+
   const [agentName, setAgentName] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedNode, setSelectedNode] = useState<any>(null);
@@ -105,8 +112,86 @@ function SequentialAgentForm() {
     );
   }, []);
 
+  const buildSequentialNodesAndEdges = (agentValue: any) => {
+    const agents = agentValue?.agents || [];
+
+    const newNodes: any[] = [];
+    const newEdges: any[] = [];
+
+    const START_X = 0;
+    const START_Y = 70;
+    const NODE_SPACING_X = 240;
+
+    newNodes.push({
+      id: "sequential-start",
+      type: "startNode",
+      position: { x: START_X, y: START_Y },
+      data: { label: "sequential-start" },
+    });
+
+    agents.forEach((agent: any, index: number) => {
+      const agentId = `middle-node-${index}`;
+      const posX = START_X + NODE_SPACING_X * (index + 1);
+
+      newNodes.push({
+        id: agentId,
+        type: "middleNode",
+        position: { x: posX, y: START_Y - 10 },
+        data: {
+          fields: {
+            name: agent.name,
+            model: agent.chatmodel,
+            instruction: agent.instruction || "",
+            temperature: parseFloat(agent.temperature),
+            topP: parseFloat(agent.topP),
+            tools: agent.tools || [],
+            maxOutputToken: parseInt(agent.maxTokens),
+            description: agent.description || "",
+          },
+        },
+      });
+
+      const sourceId =
+        index === 0 ? "sequential-start" : `middle-node-${index - 1}`;
+      newEdges.push(
+        index == 0 || index === agents.length - 1
+          ? {
+              id: `e${index}`,
+              source: sourceId,
+              target: agentId,
+            }
+          : {
+              id: `e${index}`,
+              source: sourceId,
+              target: agentId,
+              targetHandle: "input",
+            }
+      );
+    });
+
+    const outputNodeId = "sequential-output";
+    const outputPosX = START_X + NODE_SPACING_X * (agents.length + 1);
+    newNodes.push({
+      id: outputNodeId,
+      type: "outputNode",
+      position: { x: outputPosX, y: START_Y },
+      data: { label: "sequential-output" },
+    });
+
+    if (agents.length > 0) {
+      newEdges.push({
+        id: `e${agents.length}`,
+        source: `middle-node-${agents.length - 1}`,
+        target: outputNodeId,
+        targetHandle: "output",
+      });
+    }
+    console.log(newEdges);
+    setNodes(newNodes);
+    setEdges(newEdges);
+  };
+
   const handleSaveAgent = (id: string, values: any) => {
-    console.log(values);
     setNodes((prevNodes) =>
       prevNodes.map((node) =>
         node.id === id
@@ -127,6 +212,16 @@ function SequentialAgentForm() {
     setIsModalOpen(false);
     setSelectedNode(null);
   };
+
+  // api integration
+  const getAgentByID = async () => {
+    const response = await getAgenticById(params.id as string);
+    if (response) {
+      buildSequentialNodesAndEdges(response);
+      setAgentName(response.name);
+    }
+  };
+
   const handleCreateOrUpdateAgent = async () => {
     const agentNodes = nodes.filter((node) => node.data?.fields);
 
@@ -156,10 +251,21 @@ function SequentialAgentForm() {
       type: "sequential",
       agents,
     };
-    const response = await createAgentic(agentic);
-    if (response?.status === "success") {
+    let response;
+
+    if (params.id) {
+      response = await editAgentic(params.id as string, agentic);
+    } else {
+      response = await createAgentic(agentic);
     }
+    console.log(response);
   };
+
+  useEffect(() => {
+    if (params.id) {
+      getAgentByID();
+    }
+  }, []);
 
   const sendMsg = async () => {
     const res = await chat(
@@ -205,7 +311,7 @@ function SequentialAgentForm() {
           />
         </Box>
         <ButtonComponent
-          label="Create Agent"
+          label={params.id ? "Update" : "Create"}
           onClick={handleCreateOrUpdateAgent}
           width="150px"
           height="40px"

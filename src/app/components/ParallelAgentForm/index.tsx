@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { Box } from "@mui/material";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ButtonComponent from "../Common/ButtonComponent";
 import { ParallelAgentCanvas } from "./ParallelAgentCanvas";
 import Input from "../Common/Input";
@@ -13,9 +13,24 @@ import {
   initialNodes,
 } from "./ParallelAgentCanvas/data";
 import AgentCreateModal from "../Common/AgentCreateModal";
-import { createAgentic } from "@/actions/agenticAction";
+import {
+  createAgentic,
+  editAgentic,
+  getAgenticById,
+} from "@/actions/agenticAction";
+import { useParams } from "next/navigation";
+
+const START_X = 0;
+const START_Y = 200;
+
+const OUTPUT_X = 680;
+
+const MERGE_X = 460;
+const MERGE_Y = 200;
 
 function ParallelAgentForm() {
+  const params = useParams();
+
   const [agentName, setAgentName] = useState<string>("");
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -108,6 +123,84 @@ function ParallelAgentForm() {
     setSelectedNode(null);
   };
 
+  const buildNodesAndEdges = (agentValue: any) => {
+    const agents = agentValue?.agents || [];
+
+    // Start with Start and Output Nodes
+    const newNodes: any[] = [
+      {
+        id: "parallel-start",
+        type: "startNode",
+        position: { x: START_X, y: START_Y },
+        data: { label: "Start" },
+      },
+      {
+        id: "merge-node",
+        type: "mergeNode",
+        position: { x: MERGE_X, y: MERGE_Y },
+        data: { label: "Merge" },
+      },
+      {
+        id: "parallel-output",
+        type: "outputNode",
+        position: { x: OUTPUT_X, y: START_Y },
+        data: { label: "Output" },
+      },
+    ];
+
+    const newEdges: any[] = [];
+
+    agents.forEach((agent: any, index: number) => {
+      const agentId = `middle-node-${index}`;
+      const posY = START_Y + index * 150; // offset each agent vertically
+
+      // Add middle (agent) node
+      newNodes.push({
+        id: agentId,
+        type: "middleNode",
+        position: { x: AGENT_X, y: posY },
+        data: {
+          fields: {
+            name: agent.name,
+            model: agent.chatmodel,
+            instruction: agent.instruction || "",
+            temperature: parseFloat(agent.temperature),
+            topP: parseFloat(agent.topP),
+            tools: agent.tools || [],
+            maxOutputToken: parseInt(agent.maxTokens),
+            description: agent.description || "",
+          },
+        },
+      });
+
+      // Connect start -> agent -> merge
+      newEdges.push(
+        { id: `e-start-${index}`, source: "parallel-start", target: agentId },
+        { id: `e-merge-${index}`, source: agentId, target: "merge-node" }
+      );
+    });
+
+    // Final connection to output
+    newEdges.push({
+      id: "e-output",
+      source: "merge-node",
+      target: "parallel-output",
+    });
+
+    setNodes(newNodes);
+    setEdges(newEdges);
+  };
+
+  // api integration
+  const getAgentByID = async () => {
+    const response = await getAgenticById(params.id as string);
+    if (response) {
+      // setAgentValue(response);
+      buildNodesAndEdges(response);
+      setAgentName(response.name);
+    }
+  };
+
   const handleCreateOrUpdateAgent = async () => {
     const agentNodes = nodes.filter((node) => node.data?.fields);
 
@@ -137,9 +230,26 @@ function ParallelAgentForm() {
       type: "parallel",
       agents,
     };
-    const response = await createAgentic(agentic);
+
+    // console.log(agentic);
+
+    let response;
+
+    if (params.id) {
+      response = await editAgentic(params.id as string, agentic);
+    } else {
+      response = await createAgentic(agentic);
+    }
+
+    // const response = await createAgentic(agentic);
     console.log(response);
   };
+
+  useEffect(() => {
+    if (params.id) {
+      getAgentByID();
+    }
+  }, []);
 
   return (
     <Box>
@@ -149,7 +259,7 @@ function ParallelAgentForm() {
         <Input
           name="name"
           label="Agent Name"
-          value={""}
+          value={agentName}
           placeholder="e.g., Customer Onboarding Flow"
           onChange={(e) => {
             setAgentName(e.target.value);
@@ -177,7 +287,7 @@ function ParallelAgentForm() {
           />
         </Box>
         <ButtonComponent
-          label="Next"
+          label={params.id ? "Update" : "Create"}
           onClick={handleCreateOrUpdateAgent}
           width="150px"
           height="40px"
