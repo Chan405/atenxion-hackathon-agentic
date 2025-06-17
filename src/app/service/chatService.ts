@@ -63,6 +63,19 @@ export async function chat(
                   ...prev,
                   { agentCall: `Agent Got Called: ${jsonData.response}` },
                 ]);
+              } else if (jsonData.status === "Parallel Yield") {
+                setMessages((prev) => [
+                  ...prev,
+                  {
+                    agentCall: `Parallel Agent Result: ${jsonData.response}`,
+                    parallel: true,
+                  },
+                ]);
+              } else if (jsonData.status === "Tool Called") {
+                setMessages((prev) => [
+                  ...prev,
+                  { agentCall: `Got Tool Called: ${jsonData.response}` },
+                ]);
               } else if (jsonData.status === "End of stream") {
                 // setStreamingMessage(
                 //   (prev) => prev + jsonData.response + "\\n\\n"

@@ -31,9 +31,9 @@ function AgentCreateModal({
   ];
 
   const toolLists = [
-    { value: "webSearch", label: "Web Search" },
-    { value: "codeInterpreter", label: "Code Interpreter" },
-    { value: "rag", label: "Connect to your rag" },
+    { value: "WebSearch", label: "Web Search" },
+    { value: "CodeInterpreter", label: "Code Interpreter" },
+    { value: "AtenxionAgent", label: "Atenxion Agent" },
   ];
 
   const values = selectedNode.data.fields;
@@ -48,7 +48,7 @@ function AgentCreateModal({
     tools: values.tools || [],
     maxOutputToken: values.maxOutputToken || 16000,
     description: values.description || "",
-    outputKeys: [],
+    outputKeys: values.outputKeys || [],
   };
 
   return (

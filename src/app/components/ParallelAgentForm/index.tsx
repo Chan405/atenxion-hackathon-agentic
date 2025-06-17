@@ -259,9 +259,9 @@ function ParallelAgentForm() {
     } else {
       response = await createAgentic(agentic);
     }
-
-    // const response = await createAgentic(agentic);
-    console.log(response);
+    if (response.status === "success") {
+      router.push(`/chat/${response.data}`);
+    }
   };
 
   useEffect(() => {

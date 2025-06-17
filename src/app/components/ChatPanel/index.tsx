@@ -149,7 +149,12 @@ const ChatPanel = ({ id }: { id: string }) => {
                   gap={1}
                 >
                   {msg?.toolCall && <SpecialResponse msg={msg?.toolCall} />}
-                  {msg?.agentCall && <SpecialResponse msg={msg?.agentCall} />}
+                  {msg?.agentCall && (
+                    <SpecialResponse
+                      msg={msg?.agentCall}
+                      isParallel={msg.parallel}
+                    />
+                  )}
                   {msg?.text && <ChatResponse msg={msg?.text} />}
                 </Box>
               );

@@ -3,9 +3,10 @@ import React from "react";
 
 interface IProps {
   msg: string;
+  isParallel?: boolean;
 }
 
-function SpecialResponse({ msg }: IProps) {
+function SpecialResponse({ msg, isParallel = false }: IProps) {
   return (
     <Box
       display="flex"
@@ -27,7 +28,9 @@ function SpecialResponse({ msg }: IProps) {
           py={1.5}
           px={2}
           mb={0.5}
-          bgcolor={"#0B1D51"}
+          bgcolor={
+            msg.includes("Tool") ? "green" : isParallel ? "#725CAD" : "#0B1D51"
+          }
           borderRadius="8px 8px 8px 0px"
         >
           <Typography
