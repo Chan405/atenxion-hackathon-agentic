@@ -63,25 +63,22 @@ export async function chat(
               } else if (jsonData.status === "Agent Called") {
                 setMessages((prev) => [
                   ...prev,
-                  { agentCall: `Agent Got Called: ${jsonData.response}` },
+                  { agentCall: `${jsonData.response}` },
                 ]);
               } else if (jsonData.status === "Parallel Yield") {
                 setMessages((prev) => [
                   ...prev,
                   {
-                    agentCall: `Parallel Agent Result: ${jsonData.response}`,
+                    agentCall: `${jsonData.response}`,
                     parallel: true,
                   },
                 ]);
               } else if (jsonData.status === "Tool Called") {
                 setMessages((prev) => [
                   ...prev,
-                  { agentCall: `Got Tool Called: ${jsonData.response}` },
+                  { toolCall: jsonData.response },
                 ]);
               } else if (jsonData.status === "End of stream") {
-                // setStreamingMessage(
-                //   (prev) => prev + jsonData.response + "\\n\\n"
-                // );
                 setMessages((prev) => [...prev, { text: jsonData.response }]);
               }
             } catch (error: any) {

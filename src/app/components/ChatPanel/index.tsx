@@ -8,7 +8,7 @@ import ChatQuestion from "../Common/ChatQuestion";
 import ChatResponse from "../Common/ChatResponse";
 import React from "react";
 import SpecialResponse from "../Common/SpecialResponse";
-import { getAllAgentics } from "@/actions/agenticAction";
+import { getAllAgentics, getMessageByAgentId } from "@/actions/agenticAction";
 import { useRouter } from "next/navigation";
 
 const ChatPanel = ({ id }: { id: string }) => {
@@ -18,6 +18,7 @@ const ChatPanel = ({ id }: { id: string }) => {
   const messageRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [agents, setAgents] = useState([]);
+  const [prevMessages, setPrevMessages] = useState([]);
   const router = useRouter();
   const scrollToBottom = () => {
     messageRef.current?.scrollTo({
@@ -45,6 +46,8 @@ const ChatPanel = ({ id }: { id: string }) => {
     const fetch = async () => {
       const agents = await getAllAgentics();
       setAgents(agents.data);
+      const response = await getMessageByAgentId(id);
+      setPrevMessages(response);
     };
     fetch();
   }, []);
@@ -176,6 +179,34 @@ const ChatPanel = ({ id }: { id: string }) => {
           overflow={"auto"}
           ref={messageRef}
         >
+          {prevMessages?.length > 0 &&
+            prevMessages.map((msg: any, index: number) => (
+              <Box key={index}>
+                {msg?.question && <ChatQuestion msg={msg?.question} />}
+
+                {msg?.chains.map((chain: any, index: number) => (
+                  <Box key={index}>
+                    {chain?.agentName && (
+                      <SpecialResponse
+                        msg={chain?.agentName}
+                        isParallel={chain?.isParallel}
+                        isAgent
+                      />
+                    )}
+                    {chain?.toolsUsage?.length > 0 && (
+                      <SpecialResponse
+                        msg={chain?.toolsUsage}
+                        isParallel={chain?.parallel}
+                        isTool
+                      />
+                    )}
+                    {chain?.agentResponse && (
+                      <ChatResponse msg={chain?.agentResponse} />
+                    )}
+                  </Box>
+                ))}
+              </Box>
+            ))}
           {messages.map((msg, index) => {
             if (msg?.user) return <ChatQuestion msg={msg?.text} key={index} />;
             else
@@ -187,11 +218,14 @@ const ChatPanel = ({ id }: { id: string }) => {
                   justifyContent={"center"}
                   gap={1}
                 >
-                  {msg?.toolCall && <SpecialResponse msg={msg?.toolCall} />}
+                  {msg?.toolCall && (
+                    <SpecialResponse msg={msg?.toolCall} isTool />
+                  )}
                   {msg?.agentCall && (
                     <SpecialResponse
                       msg={msg?.agentCall}
                       isParallel={msg.parallel}
+                      isAgent
                     />
                   )}
                   {msg?.text && <ChatResponse msg={msg?.text} />}
