@@ -25,7 +25,6 @@ function SelectComponent({
   label,
   options,
   value,
-  borderRadius,
 }: IProps) {
   return (
     <Box width={"100%"}>

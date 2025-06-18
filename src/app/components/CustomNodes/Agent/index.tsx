@@ -2,12 +2,10 @@
 import { Box } from "@mui/material";
 import { Handle, Position } from "@xyflow/react";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
-import React, { useState } from "react";
+import React from "react";
 import BodyText from "../../Typeface/BodyText";
-import DeleteIcon from "@mui/icons-material/Delete";
 
 const AgentNode = ({ data }: any) => {
-  const [showDeleteIcon, setShowDeleteIcon] = useState<boolean>(false);
   return (
     <Box
       sx={{
@@ -23,8 +21,6 @@ const AgentNode = ({ data }: any) => {
         position: "relative",
       }}
       onDoubleClick={data.onDoubleClick}
-      onMouseEnter={() => setShowDeleteIcon(true)}
-      onMouseLeave={() => setShowDeleteIcon(false)}
     >
       {/* {showDeleteIcon && (
         <DeleteIcon

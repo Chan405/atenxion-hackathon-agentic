@@ -2,7 +2,7 @@ import { Box, Typography } from "@mui/material";
 import React from "react";
 
 interface IProps {
-  msg: any;
+  msg: string;
 }
 
 function ChatQuestion({ msg }: IProps) {

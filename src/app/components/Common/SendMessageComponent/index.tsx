@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { IoSend } from "react-icons/io5";
 import { Box, TextareaAutosize } from "@mui/material";

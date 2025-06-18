@@ -1,8 +1,14 @@
-import ChatPanel from "@/app/components/ChatPanel";
-import React from "react";
+"use client";
 
-function ChatWindow({ params }: { params: { id: string } }) {
-  return <ChatPanel id={params.id} />;
+import React from "react";
+import { useParams } from "next/navigation";
+import ChatPanel from "@/app/components/ChatPanel";
+
+function ChatWindow() {
+  const params = useParams();
+  const id = params?.id as string; // Optional chaining for safety
+
+  return <ChatPanel id={id} />;
 }
 
 export default ChatWindow;

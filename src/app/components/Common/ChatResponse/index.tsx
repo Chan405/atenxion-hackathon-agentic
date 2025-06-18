@@ -1,4 +1,6 @@
-import { Box, Typography } from "@mui/material";
+/* eslint-disable */
+
+import { Box } from "@mui/material";
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
