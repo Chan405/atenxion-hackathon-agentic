@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { Box } from "@mui/material";
-import React, { useCallback, useState } from "react";
+import { Box, Typography } from "@mui/material";
+import React, { useCallback, useEffect, useState } from "react";
 import ButtonComponent from "../Common/ButtonComponent";
 import { ParallelAgentCanvas } from "./ParallelAgentCanvas";
 import Input from "../Common/Input";
@@ -13,9 +13,26 @@ import {
   initialNodes,
 } from "./ParallelAgentCanvas/data";
 import AgentCreateModal from "../Common/AgentCreateModal";
-import { createAgentic } from "@/actions/agenticAction";
+import {
+  createAgentic,
+  editAgentic,
+  getAgenticById,
+} from "@/actions/agenticAction";
+import { useParams, useRouter } from "next/navigation";
+import ResponsePickerPromptModal from "../Common/ResponsePickerPromptModal";
+
+const START_X = 0;
+const START_Y = 40;
+
+const OUTPUT_X = 680;
+
+const MERGE_X = 460;
+const MERGE_Y = 200;
 
 function ParallelAgentForm() {
+  const params = useParams();
+  const router = useRouter();
+
   const [agentName, setAgentName] = useState<string>("");
 
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -27,6 +44,9 @@ function ParallelAgentForm() {
   );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPromptModalOpen, setIsPromptModalOpen] = useState(false);
+
+  const [responsePickerPrompt, setResponsePickerPrompt] = useState("");
   const [selectedNode, setSelectedNode] = useState<any>(null);
 
   const handleNodeDoubleClick = (node: any) => {
@@ -34,13 +54,23 @@ function ParallelAgentForm() {
     setIsModalOpen(true);
   };
 
+  const handleMergeDoubleClick = (node: any) => {
+    setSelectedNode(node);
+    console.log(node);
+    setIsPromptModalOpen(true);
+  };
+
   const handleModalClose = () => {
     setIsModalOpen(false);
     setSelectedNode(null);
   };
 
+  const handlePromptChange = (e: any) => {
+    setResponsePickerPrompt(e.target.value);
+  };
+
   const addAgentNode = () => {
-    const START_Y = 200;
+    const START_Y = 60;
     const agentNodes = nodes.filter((n) => n.type === "middleNode");
     const count = agentNodes.length;
     const newNodeId = `middle-node-${Date.now()}`;
@@ -55,13 +85,14 @@ function ParallelAgentForm() {
       data: {
         fields: {
           name: `Agent ${count + 1}`,
-          model: "",
+          model: "gpt-4.1",
           instruction: "",
           temperature: 0.5,
-          topP: 10,
+          topP: 1.0,
           tools: [],
           maxOutputToken: 100,
           description: "",
+          outputKeys: [],
         },
       },
     };
@@ -86,7 +117,6 @@ function ParallelAgentForm() {
   };
 
   const handleSaveAgent = (id: string, values: any) => {
-    console.log(values);
     setNodes((prevNodes) =>
       prevNodes.map((node) =>
         node.id === id
@@ -106,6 +136,86 @@ function ParallelAgentForm() {
     );
     setIsModalOpen(false);
     setSelectedNode(null);
+  };
+
+  const buildNodesAndEdges = (agentValue: any) => {
+    const agents = agentValue?.agents || [];
+
+    // Start with Start and Output Nodes
+    const newNodes: any[] = [
+      {
+        id: "parallel-start",
+        type: "startNode",
+        position: { x: START_X, y: START_Y },
+        data: { label: "Start" },
+      },
+      {
+        id: "merge-node",
+        type: "mergeNode",
+        position: { x: MERGE_X, y: MERGE_Y },
+        data: { label: "Merge" },
+      },
+      {
+        id: "parallel-output",
+        type: "outputNode",
+        position: { x: OUTPUT_X, y: START_Y },
+        data: { label: "Output" },
+      },
+    ];
+
+    const newEdges: any[] = [];
+
+    agents.forEach((agent: any, index: number) => {
+      const agentId = `middle-node-${index}`;
+      const posY = START_Y + index * 150; // offset each agent vertically
+
+      // Add middle (agent) node
+      newNodes.push({
+        id: agentId,
+        type: "middleNode",
+        position: { x: AGENT_X, y: posY },
+        data: {
+          fields: {
+            name: agent.name,
+            model: agent.chatmodel,
+            instruction: agent.instruction || "",
+            temperature: parseFloat(agent.temperature),
+            topP: parseFloat(agent.topP),
+            tools: agent.tools || [],
+            maxOutputToken: parseInt(agent.maxTokens),
+            description: agent.description || "",
+            outputKeys: agent.outputKeys || "",
+          },
+        },
+      });
+
+      // Connect start -> agent -> merge
+      newEdges.push(
+        { id: `e-start-${index}`, source: "parallel-start", target: agentId },
+        { id: `e-merge-${index}`, source: agentId, target: "merge-node" }
+      );
+    });
+
+    // Final connection to output
+    newEdges.push({
+      id: "e-output",
+      source: "merge-node",
+      target: "parallel-output",
+    });
+
+    setNodes(newNodes);
+    setEdges(newEdges);
+  };
+
+  // api integration
+  const getAgentByID = async () => {
+    const response = await getAgenticById(params.id as string);
+    if (response) {
+      // setAgentValue(response);
+      buildNodesAndEdges(response);
+      setAgentName(response.name);
+      setResponsePickerPrompt(response.responsePickerPrompt);
+    }
   };
 
   const handleCreateOrUpdateAgent = async () => {
@@ -128,42 +238,183 @@ function ParallelAgentForm() {
           description: fields.description,
           topP: String(fields.topP),
           maxTokens: String(fields.maxOutputToken),
+          outputKeys: fields.outputKeys,
         };
       }
     });
 
     const agentic = {
       name: agentName,
+      responsePickerPrompt,
       type: "parallel",
       agents,
     };
-    const response = await createAgentic(agentic);
-    console.log(response);
+
+    // console.log(agentic);
+
+    let response;
+
+    if (params.id) {
+      response = await editAgentic(params.id as string, agentic);
+    } else {
+      response = await createAgentic(agentic);
+    }
+    if (response.status === "success") {
+      router.push(`/chat/${response.data}`);
+    }
   };
 
+  useEffect(() => {
+    if (params.id) {
+      getAgentByID();
+    }
+  }, []);
+
+  const handleDeleteNode = useCallback(
+    (nodeId: string) => {
+      const agentNodes = nodes.filter((node) => node.data?.fields);
+      if (agentNodes.length < 2) return;
+
+      setNodes((nds) => {
+        const deletedNode = nds.find((n) => n.id === nodeId);
+        const isMiddleNode = deletedNode?.type === "middleNode";
+
+        const updatedNodes = nds.filter((n) => n.id !== nodeId);
+
+        if (!isMiddleNode) return updatedNodes;
+
+        // If we deleted a middle node, update output node position
+        const remainingMiddleNodes = updatedNodes
+          .filter((n) => n.type === "middleNode")
+          .sort((a, b) => a.position.x - b.position.x);
+
+        if (remainingMiddleNodes.length > 0) {
+          const lastNode =
+            remainingMiddleNodes[remainingMiddleNodes.length - 1];
+          return updatedNodes.map((n) =>
+            n.id === "sequential-output"
+              ? {
+                  ...n,
+                  position: {
+                    x: lastNode.position.x + 200,
+                    y: lastNode.position.y,
+                  },
+                }
+              : n
+          );
+        }
+
+        return updatedNodes;
+      });
+
+      setEdges((eds) => {
+        // Remove any edge connected to the deleted node
+        let filteredEdges = eds.filter(
+          (e) => e.source !== nodeId && e.target !== nodeId
+        );
+
+        // If a middle node was deleted, reconnect the last one to output
+        const remainingMiddleNodes = nodes
+          .filter((n) => n.id !== nodeId && n.type === "middleNode")
+          .sort((a, b) => a.position.x - b.position.x);
+
+        if (remainingMiddleNodes.length > 0) {
+          const lastNode =
+            remainingMiddleNodes[remainingMiddleNodes.length - 1];
+
+          // Remove any existing edge from last middle node to output to prevent duplicates
+          filteredEdges = filteredEdges.filter(
+            (e) =>
+              !(e.source === lastNode.id && e.target === "sequential-output")
+          );
+
+          // Add the edge from last remaining middle node to output
+          filteredEdges.push({
+            id: `e-${lastNode.id}-sequential-output`,
+            source: lastNode.id,
+            target: "sequential-output",
+          });
+        }
+
+        return filteredEdges;
+      });
+
+      setSelectedNode(null);
+      setIsModalOpen(false);
+    },
+    [nodes]
+  );
+
   return (
-    <Box>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+        bgcolor: "#052659",
+      }}
+    >
       <Box
-        sx={{ px: 4, py: 2, display: "flex", flexDirection: "column", gap: 2 }}
+        sx={{
+          width: "800px",
+          px: 4,
+          py: 2,
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          border: "1px dashed #77696D",
+          borderRadius: "8px",
+          m: 2,
+          bgcolor: "white",
+        }}
       >
-        <Input
-          name="name"
-          label="Agent Name"
-          value={""}
-          placeholder="e.g., Customer Onboarding Flow"
-          onChange={(e) => {
-            setAgentName(e.target.value);
-          }}
-          width="40%"
-          showLabel
-        />
-        {/* <ButtonComponent onClick={sendMessage} label="Send" /> */}
         <Box
           sx={{
-            height: "500px",
-            border: "1px dashed #77696D",
-            p: 2,
-            borderRadius: "8px",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "end",
+            borderBottom: "1px solid #052659",
+            pb: 3,
+          }}
+        >
+          <Box
+            display={"flex"}
+            flexDirection={"column"}
+            gap={1}
+            alignItems={"start"}
+            justifyContent={"center"}
+          >
+            <Typography fontWeight={600} color="#052659">
+              Agent Name
+            </Typography>
+            <Input
+              name="name"
+              label="Agent Name"
+              value={agentName}
+              placeholder="e.g., Customer Onboarding Flow"
+              onChange={(e) => {
+                setAgentName(e.target.value);
+              }}
+              width="100%"
+              showLabel={false}
+            />
+          </Box>
+
+          <ButtonComponent
+            label="Add Agent"
+            onClick={addAgentNode}
+            width="120px"
+            height="40px"
+            color="#052659"
+            borderRadius="8px"
+          />
+        </Box>
+
+        <Box
+          sx={{
+            height: "400px",
+            mt: 1,
           }}
         >
           <ParallelAgentCanvas
@@ -174,23 +425,64 @@ function ParallelAgentForm() {
             onConnect={onConnect}
             addAgentNode={addAgentNode}
             handleNodeDoubleClick={handleNodeDoubleClick}
+            handleMergeDoubleClick={handleMergeDoubleClick}
           />
         </Box>
-        <ButtonComponent
-          label="Next"
-          onClick={handleCreateOrUpdateAgent}
-          width="150px"
-          height="50px"
-        />
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          <ButtonComponent
+            label={"Back to home"}
+            onClick={() => {
+              router.push("/");
+            }}
+            borderRadius="8px"
+            width="200px"
+            height="50px"
+            color="#eee"
+            textColor="#000"
+          />
+          <ButtonComponent
+            label={params.id ? "Update Agent" : "Create Multi Agent"}
+            onClick={handleCreateOrUpdateAgent}
+            width="200px"
+            height="50px"
+            borderRadius="8px"
+            color="#052659"
+            disabled={agentName.trim().length === 0}
+          />
+        </Box>
 
-        {selectedNode && (
+        {selectedNode && isModalOpen && (
           <AgentCreateModal
             open={isModalOpen}
             handleClose={handleModalClose}
             handleSaveAgent={handleSaveAgent}
             selectedNode={selectedNode}
+            removeAgent={handleDeleteNode}
           />
         )}
+
+        {selectedNode &&
+          selectedNode.id === "merge-node" &&
+          isPromptModalOpen && (
+            <ResponsePickerPromptModal
+              open={isPromptModalOpen}
+              handleClose={() => {
+                setSelectedNode(null);
+                setIsPromptModalOpen(false);
+              }}
+              prompt={responsePickerPrompt}
+              handleChange={handlePromptChange}
+              handleSavePrompt={() => {
+                setIsPromptModalOpen(false);
+              }}
+            />
+          )}
       </Box>
     </Box>
   );

@@ -89,7 +89,7 @@ function Input({
       <Box
         position="relative"
         display="flex"
-        bgcolor={showLabel ? "white" : "#F1EEEF"}
+        bgcolor={"white"}
         borderRadius={borderRadius}
         height={height || "48px"}
         alignItems="center"
@@ -105,12 +105,12 @@ function Input({
           placeholder={placeholder}
           onChange={onChange}
           onKeyDown={onKeyDown}
-          type="text"
+          type={type}
           style={{
             fontSize: isMobile ? "14px" : "16px",
             width: "100%",
             outline: "none",
-            backgroundColor: showLabel ? "white" : "#F1EEEF",
+            backgroundColor: "white",
             border: "none",
             color: disabled ? "#8e9095" : "#1d212b",
             fontWeight: "400",

@@ -2,17 +2,19 @@
 import React, { useEffect } from "react";
 import ModalContainer from "../Modal";
 import Input from "../Input";
-import { Box } from "@mui/material";
+import { Box, Checkbox, FormControlLabel } from "@mui/material";
 import SelectComponent from "../SelectComponent";
 import TextArea from "../TextArea";
 import BodyText from "../../Typeface/BodyText";
 import { Formik } from "formik";
+import TagInput from "../TagInput";
 
 interface ModalProps {
   open: boolean;
   handleClose: () => void;
   handleSaveAgent: (id: string, values: any) => void;
   selectedNode: any;
+  removeAgent: any;
 }
 
 function AgentCreateModal({
@@ -20,17 +22,18 @@ function AgentCreateModal({
   handleClose,
   selectedNode,
   handleSaveAgent,
+  removeAgent,
 }: ModalProps) {
   const modelLists = [
     { value: "gpt-4.1", label: "GPT 4.1" },
     { value: "gpt-4o", label: "GPT 4o" },
-    { value: "gemini-2.5-pro-preview-04-17", label: "Gemini 2.5" },
+    { value: "gemini-2.5-pro-preview-05-06", label: "Gemini 2.5" },
   ];
 
   const toolLists = [
-    { value: "webSearch", label: "Web Search" },
-    { value: "codeInterpreter", label: "Code Interpreter" },
-    { value: "rag", label: "Connect to your rag" },
+    { value: "WebSearch", label: "Web Search" },
+    { value: "CodeInterpreter", label: "Code Interpreter" },
+    { value: "AtenxionAgent", label: "Atenxion Agent" },
   ];
 
   const values = selectedNode.data.fields;
@@ -40,19 +43,18 @@ function AgentCreateModal({
     model: values.model || "gpt-4.1",
     instruction: values.instruction || "",
     temperature: values.temperature || 0.7,
-    topP: values.topP || 1,
+    topP: values.topP || 1.0,
 
     tools: values.tools || [],
     maxOutputToken: values.maxOutputToken || 16000,
     description: values.description || "",
+    outputKeys: values.outputKeys || [],
   };
-  console.log(selectedNode);
 
   return (
     <Formik
       initialValues={initialValues}
       onSubmit={(values) => {
-        console.log(values);
         handleSaveAgent(selectedNode.id, values);
       }}
     >
@@ -83,6 +85,8 @@ function AgentCreateModal({
             cancelBtnText="Cancel"
             confirmBtnText={"Save"}
             confirmBtnHandler={(values) => handleSubmit(values)}
+            confirmDelete={() => removeAgent(selectedNode.id)}
+            showDeleteBtn
           >
             <Box
               width={"100%"}
@@ -143,8 +147,22 @@ function AgentCreateModal({
                   onChange={handleChange}
                 />
               </Box>
+
+              <Box display={"flex"} flexDirection={"column"} gap={1}>
+                <BodyText variant="small" weight={"medium"}>
+                  Output Keys
+                </BodyText>
+                <TagInput
+                  values={values?.outputKeys}
+                  onChangeHandler={(newValue) => {
+                    setFieldValue("outputKeys", newValue);
+                  }}
+                  placeholder=""
+                />
+              </Box>
               <Box
                 display={"flex"}
+                mt={-5}
                 gap={2}
                 width={"100%"}
                 alignItems={"center"}
@@ -152,11 +170,12 @@ function AgentCreateModal({
                 <Input
                   type="number"
                   label="Max Output Token"
-                  name="maxOutputTokens"
+                  name="maxOutputToken"
                   value={values.maxOutputToken}
                   showLabel
                   onChange={handleChange}
                 />
+
                 <Input
                   type="number"
                   label="Temperature"
@@ -180,13 +199,40 @@ function AgentCreateModal({
               </Box>
 
               <Box width={"100%"}>
-                <SelectComponent
+                {/* <SelectComponent
                   label="Tools"
                   name="tools"
                   value={values.tools}
                   onChange={(e) => setFieldValue("tools", e.target.value)}
                   options={toolLists}
-                />
+                /> */}
+                <Box>
+                  <BodyText variant="small" mb={1}>
+                    Tools
+                  </BodyText>
+                  {toolLists.map((tool) => (
+                    <FormControlLabel
+                      key={tool.value}
+                      color="#000"
+                      control={
+                        <Checkbox
+                          checked={values.tools.includes(tool.value)}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            const newValue = checked
+                              ? [...values.tools, tool.value]
+                              : values.tools.filter(
+                                  (val: any) => val !== tool.value
+                                );
+                            setFieldValue("tools", newValue);
+                          }}
+                          name="tools"
+                        />
+                      }
+                      label={tool.label}
+                    />
+                  ))}
+                </Box>
               </Box>
             </Box>
           </ModalContainer>

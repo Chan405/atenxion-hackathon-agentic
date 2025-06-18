@@ -7,7 +7,6 @@ import "@xyflow/react/dist/style.css";
 
 import { Box } from "@mui/material";
 import { nodeTypes } from "./data";
-import ButtonComponent from "../../Common/ButtonComponent";
 
 interface CanvasProps {
   nodes: any[];
@@ -18,39 +17,28 @@ interface CanvasProps {
   onConnect: any;
   handleNodeDoubleClick: (node: any) => void;
   handleDeleteNode?: (node: any) => void;
+  handleMergeDoubleClick: (node: any) => void;
 }
 
 const Canvas = ({
   nodes,
   edges,
-  addAgentNode,
+
   onNodesChange,
   onEdgesChange,
   onConnect,
   handleNodeDoubleClick,
+  handleMergeDoubleClick,
 }: CanvasProps) => {
   return (
     <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
-      <Box
-        sx={{
-          position: "absolute",
-          top: 6,
-          left: 2,
-          zIndex: 10,
-        }}
-      >
-        <ButtonComponent
-          label="Add Agent"
-          onClick={addAgentNode}
-          width="140px"
-        />
-      </Box>
       <ReactFlow
         nodes={nodes.map((n) => ({
           ...n,
           data: {
             ...n.data,
             onDoubleClick: () => handleNodeDoubleClick(n),
+            handleMergeDoubleClick: () => handleMergeDoubleClick(n),
           },
         }))}
         nodeTypes={nodeTypes}
@@ -74,6 +62,7 @@ export const ParallelAgentCanvas = ({
   onConnect,
   handleNodeDoubleClick,
   handleDeleteNode,
+  handleMergeDoubleClick,
 }: CanvasProps) => (
   <ReactFlowProvider>
     <Canvas
@@ -85,6 +74,7 @@ export const ParallelAgentCanvas = ({
       addAgentNode={addAgentNode}
       handleNodeDoubleClick={handleNodeDoubleClick}
       handleDeleteNode={handleDeleteNode}
+      handleMergeDoubleClick={handleMergeDoubleClick}
     />
   </ReactFlowProvider>
 );

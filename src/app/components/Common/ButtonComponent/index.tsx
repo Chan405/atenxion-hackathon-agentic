@@ -16,7 +16,7 @@ interface ButtonComponentProps {
   borderRadius?: string;
 }
 function ButtonComponent({
-  borderRadius = "8px",
+  borderRadius = "40px",
   icon,
   label,
   width = "fit-content",
@@ -44,7 +44,7 @@ function ButtonComponent({
         background: disabled ? "#BBB9BA" : color,
         letterSpacing: 0.5,
         boxShadow: "none",
-        borderRadius: "40px",
+        borderRadius: borderRadius,
         px: "16px",
         py: "12px",
       }}
@@ -60,7 +60,7 @@ function ButtonComponent({
           sx={{
             fontSize: { md: "14px", lg: "16px", xl: "16px" },
             color: textColor,
-            fontWeight: "700",
+            fontWeight: "600",
           }}
         >
           {label}

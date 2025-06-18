@@ -31,11 +31,14 @@ interface ModalContainerProps {
   showBackButton?: boolean;
   titleCenter?: boolean;
   isIntegration?: boolean;
+  showDeleteBtn?: boolean;
+  confirmDelete?: () => void;
 }
 import CloseIcon from "@mui/icons-material/Close";
 import OutlineButton from "../OutlineButton";
 
 function ModalContainer({
+  showDeleteBtn = false,
   open,
   handleClose,
   children,
@@ -55,6 +58,7 @@ function ModalContainer({
   maxHeight,
   showBackButton = false,
   isIntegration,
+  confirmDelete,
 }: ModalContainerProps) {
   const isMobile = useMediaQuery((theme: Theme) => theme.breakpoints.down(900));
 
@@ -104,7 +108,7 @@ function ModalContainer({
                   <ArrowBackIcon
                     onClick={handleClose}
                     style={{
-                      color: "#636464",
+                      color: "#052659",
                       fontSize: "20px",
                       cursor: "pointer",
                     }}
@@ -112,7 +116,13 @@ function ModalContainer({
                 </Box>
               )}
               {/* <SubTitle text={title} /> */}
-              <SubHeading fontSize="18px" textAlign="center" flex={1} ml={1}>
+              <SubHeading
+                fontSize="18px"
+                textAlign="center"
+                color="#052659"
+                flex={1}
+                ml={1}
+              >
                 {title}
               </SubHeading>
               <Box
@@ -156,7 +166,7 @@ function ModalContainer({
             {cancelBtnText.length > 0 && (
               <OutlineButton
                 label={cancelBtnText}
-                width="75px"
+                width="105px"
                 height="42px"
                 background="#f2f2f2"
                 borderRadius="8px"
@@ -168,11 +178,25 @@ function ModalContainer({
               label={confirmBtnText}
               width={buttonWidth ? buttonWidth : "120px"}
               height="41px"
+              color="#052659"
               borderRadius="8px"
               onClick={confirmBtnHandler}
               loading={loading}
               disabled={btnDisabled}
             />
+            {showDeleteBtn && (
+              <ButtonComponent
+                label={"Remove"}
+                width={buttonWidth ? buttonWidth : "120px"}
+                height="41px"
+                borderRadius="8px"
+                onClick={confirmDelete}
+                loading={loading}
+                disabled={btnDisabled}
+                color="#EF476F"
+                textColor="#fff"
+              />
+            )}
           </Box>
         )}
       </Box>

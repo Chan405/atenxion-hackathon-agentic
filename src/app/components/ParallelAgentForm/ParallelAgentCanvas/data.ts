@@ -4,15 +4,15 @@ import OutputNode from "../../CustomNodes/Output";
 import StartNode from "../../CustomNodes/Start";
 
 const START_X = 0;
-const START_Y = 200;
+const START_Y = 40;
 
-export const AGENT_X = 230;
+export const AGENT_X = 170;
 export const AGENT_Y_GAP = 120;
 
-const OUTPUT_X = 680;
+const OUTPUT_X = 630;
 
-const MERGE_X = 460; // between agents and output
-const MERGE_Y = 200;
+const MERGE_X = 380;
+const MERGE_Y = 40;
 
 export const initialNodes = [
   {
@@ -24,17 +24,18 @@ export const initialNodes = [
   {
     id: "middle-node-1",
     type: "middleNode",
-    position: { x: AGENT_X, y: START_Y - 10 },
+    position: { x: AGENT_X, y: START_Y },
     data: {
       fields: {
         name: "Agent 1",
-        model: "",
+        model: "gpt-4.1",
         instruction: "",
         temperature: 0.5,
-        topP: 10,
+        topP: 1.0,
         tools: [],
         maxOutputToken: 100,
         description: "",
+        outputKeys: [],
       },
     },
   },
