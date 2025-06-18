@@ -13,7 +13,6 @@ const OUTPUT_X = 630;
 
 const MERGE_X = 380;
 const MERGE_Y = 40;
-
 export const initialNodes = [
   {
     id: "parallel-start",
@@ -36,6 +35,7 @@ export const initialNodes = [
         maxOutputToken: 100,
         description: "",
         outputKeys: [],
+
       },
     },
   },

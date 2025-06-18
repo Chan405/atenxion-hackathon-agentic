@@ -350,11 +350,12 @@ function SequentialAgentForm() {
         alignItems: "center",
         height: "100vh",
         bgcolor: "#052659",
+
       }}
     >
       <Box
         sx={{
-          width: "800px",
+          width: "1000px",
           px: 4,
           py: 2,
           display: "flex",

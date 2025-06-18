@@ -1,16 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { IoSend } from "react-icons/io5";
-import { Box, TextareaAutosize } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  TextareaAutosize,
+  Typography,
+} from "@mui/material";
 
 const SendMessageComponent = ({
   question,
   setQuestion,
   submitMessage,
+  streaming,
 }: {
   question: string;
   setQuestion: (value: string) => void;
   submitMessage: () => void;
+  streaming?: boolean;
 }) => {
   const handleKeyDown = (event: any) => {
     if (
@@ -90,7 +97,19 @@ const SendMessageComponent = ({
                   }
             }
           >
-            <IoSend color={question?.length > 0 ? "#052659" : "gray"} />
+            {streaming ? (
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                width="100%"
+                py={1}
+              >
+                <CircularProgress size={24} />
+              </Box>
+            ) : (
+              <IoSend color={question?.length > 0 ? "#052659" : "gray"} />
+            )}
           </Box>
         </Box>
       </Box>

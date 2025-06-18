@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 
 const ChatPanel = ({ id }: { id: string }) => {
   const [question, setQuestion] = useState("");
+  const [loading, setLoading] = useState(false);
   const [streamingMessage, setStreamingMessage] = useState("");
   const [streaming, setStreaming] = useState(false);
   const messageRef = useRef<HTMLDivElement>(null);
@@ -206,6 +207,7 @@ const ChatPanel = ({ id }: { id: string }) => {
           setQuestion={setQuestion}
           question={question}
           submitMessage={submitMessage}
+          streaming={streaming}
         />
       </Box>
     </Box>

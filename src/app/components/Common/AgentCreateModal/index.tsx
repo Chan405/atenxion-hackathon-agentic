@@ -2,13 +2,14 @@
 import React, { useEffect } from "react";
 import ModalContainer from "../Modal";
 import Input from "../Input";
-import { Box, Checkbox, FormControlLabel } from "@mui/material";
+import { Box, Checkbox, FormControlLabel, Switch } from "@mui/material";
 import SelectComponent from "../SelectComponent";
 import TextArea from "../TextArea";
 import BodyText from "../../Typeface/BodyText";
 import { Formik } from "formik";
 import TagInput from "../TagInput";
-
+import Image from "next/image";
+import IOSSwitch from "../IOSSwitch";
 interface ModalProps {
   open: boolean;
   handleClose: () => void;
@@ -31,9 +32,17 @@ function AgentCreateModal({
   ];
 
   const toolLists = [
-    { value: "WebSearch", label: "Web Search" },
-    { value: "CodeInterpreter", label: "Code Interpreter" },
-    { value: "AtenxionAgent", label: "Atenxion Agent" },
+    { value: "WebSearch", label: "Web Search", image: "/assets/websearch.png" },
+    {
+      value: "CodeInterpreter",
+      label: "Code Interpreter",
+      image: "/assets/711284.png",
+    },
+    {
+      value: "AtenxionAgent",
+      label: "Atenxion Agent",
+      image: "/assets/Atenxion_Logo.svg",
+    },
   ];
 
   const values = selectedNode.data.fields;
@@ -49,6 +58,7 @@ function AgentCreateModal({
     maxOutputToken: values.maxOutputToken || 16000,
     description: values.description || "",
     outputKeys: values.outputKeys || [],
+    toolImage: values.toolImage || "",
   };
 
   return (
@@ -206,16 +216,84 @@ function AgentCreateModal({
                   onChange={(e) => setFieldValue("tools", e.target.value)}
                   options={toolLists}
                 /> */}
-                <Box>
-                  <BodyText variant="small" mb={1}>
+                <Box
+                  sx={{
+                    border: "1px solid #E0E0E0",
+                    borderRadius: "8px",
+                    padding: "10px",
+                  }}
+                >
+                  <BodyText
+                    variant="small"
+                    mb={1}
+                    sx={{ display: "flex", flexDirection: "column" }}
+                  >
                     Tools
                   </BodyText>
                   {toolLists.map((tool) => (
-                    <FormControlLabel
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: "10px",
+                      }}
                       key={tool.value}
-                      color="#000"
-                      control={
-                        <Checkbox
+                    >
+                      <Image
+                        src={tool.image}
+                        alt={tool.label}
+                        width={30}
+                        height={30}
+                        style={{ marginRight: "10px" }}
+                      />
+                      {/* {tool.label} */}
+                      {/* <FormControlLabel
+                        key={tool.value}
+                        color="#000"
+                        control={
+                          // <Checkbox
+                          //   checked={values.tools.includes(tool.value)}
+                          //   onChange={(e) => {
+                          //     const checked = e.target.checked;
+                          //     const newValue = checked
+                          //       ? [...values.tools, tool.value]
+                          //       : values.tools.filter(
+                          //           (val: any) => val !== tool.value
+                          //         );
+                          //     setFieldValue("tools", newValue);
+                          //   }}
+                          //   name="tools"
+                          // />
+                          <IOSSwitch
+                            checked={values.tools.includes(tool.value)}
+                            onChange={(e) => {
+                              const checked = e.target.checked;
+                              const newValue = checked
+                                ? [...values.tools, tool.value]
+                                : values.tools.filter(
+                                    (val: any) => val !== tool.value
+                                  );
+                              setFieldValue("tools", newValue);
+                            }}
+                            name="toggleSwitch"
+                            color="primary"
+                          />
+                        }
+                        label={tool.label}
+                        labelPlacement="start"
+                        sx={{gap: "200px",display: "flex", alignItems: "center"}}
+                      /> */}
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        width="100%"
+                        paddingY={1}
+                      >
+                        <BodyText variant="small" weight="regular">
+                          {tool.label}
+                        </BodyText>
+                        <IOSSwitch
                           checked={values.tools.includes(tool.value)}
                           onChange={(e) => {
                             const checked = e.target.checked;
@@ -226,11 +304,11 @@ function AgentCreateModal({
                                 );
                             setFieldValue("tools", newValue);
                           }}
-                          name="tools"
+                          name="toggleSwitch"
+                          color="primary"
                         />
-                      }
-                      label={tool.label}
-                    />
+                      </Box>
+                    </Box>
                   ))}
                 </Box>
               </Box>

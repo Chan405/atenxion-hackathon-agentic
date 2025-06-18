@@ -58,15 +58,15 @@ export async function chat(
               }
               if (jsonData.status === "streaming") {
                 if (jsonData.response.length > 0) {
-                  setStreamingMessage((prev) => prev + jsonData.response);
+                  setStreamingMessage((prev:any) => prev + jsonData.response);
                 }
               } else if (jsonData.status === "Agent Called") {
-                setMessages((prev) => [
+                setMessages((prev:any) => [
                   ...prev,
                   { agentCall: `Agent Got Called: ${jsonData.response}` },
                 ]);
               } else if (jsonData.status === "Parallel Yield") {
-                setMessages((prev) => [
+                setMessages((prev:any) => [
                   ...prev,
                   {
                     agentCall: `Parallel Agent Result: ${jsonData.response}`,
@@ -74,7 +74,7 @@ export async function chat(
                   },
                 ]);
               } else if (jsonData.status === "Tool Called") {
-                setMessages((prev) => [
+                setMessages((prev:any) => [
                   ...prev,
                   { agentCall: `Got Tool Called: ${jsonData.response}` },
                 ]);
@@ -82,7 +82,7 @@ export async function chat(
                 // setStreamingMessage(
                 //   (prev) => prev + jsonData.response + "\\n\\n"
                 // );
-                setMessages((prev) => [...prev, { text: jsonData.response }]);
+                setMessages((prev:any) => [...prev, { text: jsonData.response }]);
               }
             } catch (error: any) {
               if (error.status === "error") {

@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box } from "@mui/material";
+import { Box, Tooltip } from "@mui/material";
 import { Handle, Position } from "@xyflow/react";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import React from "react";
 import BodyText from "../../Typeface/BodyText";
+import Image from "next/image";
 
 const AgentNode = ({ data }: any) => {
+  console.log("AgentNode data:", data);
   return (
+      <Tooltip title={data.fields.description || data.fields.name || "Agent Node"}>
     <Box
       sx={{
         height: "50px",
@@ -18,6 +21,7 @@ const AgentNode = ({ data }: any) => {
         alignItems: "center",
         gap: 1,
         px: 2,
+        py: data.fields.tools.length > 0 ? 2 : 0,
         position: "relative",
       }}
       onDoubleClick={data.onDoubleClick}
@@ -68,10 +72,47 @@ const AgentNode = ({ data }: any) => {
         >
           {data.fields.model.includes("gemini") ? "Gemini" : data.fields.model}
         </BodyText>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 1,
+            py: 0.5,
+          }}
+        >
+          {data.fields.tools.map((tool: any, index: number) => (
+            <Box key={index}>
+              {tool === "WebSearch" ? (
+                <Image
+                  src="/assets/websearch.png"
+                  alt="Web Search"
+                  width={16}
+                  height={16}
+                />
+              ) : tool === "CodeInterpreter" ? (
+                <Image
+                  src="/assets/711284.png"
+                  alt="Code Interpreter"
+                  width={16}
+                  height={16}
+                />
+              ) : (
+                <Image
+                  src="/assets/Atenxion_Logo.svg"
+                  alt="File Upload"
+                  width={16}
+                  height={16}
+                />
+              )}
+            </Box>
+          ))}
+        </Box>
       </Box>
       <Handle type="source" position={Position.Right} id={"right"} />
       <Handle type="target" position={Position.Left} id={"left"} />
     </Box>
+    </Tooltip>
   );
 };
 
