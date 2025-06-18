@@ -101,6 +101,7 @@ function SequentialAgentForm() {
       target: "sequential-output",
     });
 
+    // @ts-expect-error abc
     setNodes([...updatedNodes, newNode]);
     setEdges(filteredEdges);
   };
@@ -215,6 +216,7 @@ function SequentialAgentForm() {
             tools: agent.tools || [],
             maxOutputToken: parseInt(agent.maxTokens),
             description: agent.description || "",
+            outputKeys: agent.outputKeys || [],
           },
         },
       });

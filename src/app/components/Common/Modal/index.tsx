@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Box, Modal, Theme, useMediaQuery } from "@mui/material";
 import { ReactNode } from "react";
 import ButtonComponent from "../ButtonComponent";

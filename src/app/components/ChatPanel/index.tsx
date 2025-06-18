@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { Box, Typography } from "@mui/material";
 import SendMessageComponent from "../Common/SendMessageComponent";
@@ -48,7 +49,9 @@ const ChatPanel = ({ id }: { id: string }) => {
     fetch();
   }, []);
 
-  const currentAgent = agents?.filter((agent) => agent?._id === id)[0];
+  const currentAgent: any = agents?.filter(
+    (agent: any) => agent?._id === id
+  )[0];
   return (
     <Box
       width={"100%"}
@@ -78,7 +81,7 @@ const ChatPanel = ({ id }: { id: string }) => {
           Atenxion Multi Agents
         </Typography>
         {agents?.length > 0 &&
-          agents.map((agent, index) => (
+          agents.map((agent: any, index: number) => (
             <Box
               key={index}
               color={id === agent?._id ? "white" : "#052659"}
