@@ -181,7 +181,7 @@ function LLMDrivenAgentForm() {
     });
 
     setNodes([...updatedNodes, newNode]);
-    // setEdges(newEdges);
+    setEdges(newEdges);
   };
 
   const handleDeleteNode = useCallback(
@@ -295,6 +295,7 @@ function LLMDrivenAgentForm() {
             maxOutputToken: parseInt(agent.maxTokens),
             description: agent.description || "",
             outputKeys: agent.outputKeys || [],
+            isOrchestrator: agent.isOrchestrator || false,
           },
         },
       });
@@ -391,6 +392,7 @@ function LLMDrivenAgentForm() {
           topP: String(fields.topP),
           maxTokens: String(fields.maxOutputToken),
           outputKeys: fields.outputKeys,
+          isOrchestrator: fields.isOrchestrator || false,
         };
       }
     });

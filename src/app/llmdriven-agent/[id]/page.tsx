@@ -1,8 +1,8 @@
-import SequentialAgentForm from "@/app/components/SequentialAgentForm";
+import LLMDrivenAgentForm from "@/app/components/LLMDrivenAgentForm";
 import React from "react";
 
-function EditSequentialAgent() {
-  return <SequentialAgentForm />;
+function EditLLMDrivenAgent() {
+  return <LLMDrivenAgentForm />;
 }
 
-export default EditSequentialAgent;
+export default EditLLMDrivenAgent;
