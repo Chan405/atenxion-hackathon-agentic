@@ -5,9 +5,9 @@ import React, { useCallback, useEffect, useState } from "react";
 import ButtonComponent from "../Common/ButtonComponent";
 
 import Input from "../Common/Input";
-import { SequentialAgentCanvas } from "./SequentialAgentCanvas";
+import { LLMDrivenAgentCanvas } from "./LLMDrivenAgentCanvas";
 import { addEdge, useEdgesState, useNodesState } from "@xyflow/react";
-import { initialEdges, initialNodes } from "./SequentialAgentCanvas/data";
+import { initialEdges, initialNodes } from "./LLMDrivenAgentCanvas/data";
 import AgentCreateModal from "../Common/AgentCreateModal";
 import {
   createAgentic,
@@ -16,7 +16,7 @@ import {
 } from "@/actions/agenticAction";
 import { useParams, useRouter } from "next/navigation";
 
-function SequentialAgentForm() {
+function LLMDrivenAgentForm() {
   const params = useParams();
   const router = useRouter();
 
@@ -427,7 +427,7 @@ function SequentialAgentForm() {
             height: "400px",
           }}
         >
-          <SequentialAgentCanvas
+          <LLMDrivenAgentCanvas
             nodes={nodes}
             edges={edges}
             onNodesChange={onNodesChange}
@@ -480,4 +480,4 @@ function SequentialAgentForm() {
   );
 }
 
-export default SequentialAgentForm;
+export default LLMDrivenAgentForm;

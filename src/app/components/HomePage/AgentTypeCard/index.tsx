@@ -19,7 +19,7 @@ function AgentTypeCard({ type, selected, description, img }: CardProps) {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "start",
-        width: "450px",
+        width: "400px",
         height: "250px",
         border: !selected ? "3px solid  #C1e8ff" : "3px solid #5483b1",
         borderRadius: "12px",

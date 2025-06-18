@@ -62,7 +62,7 @@ const Canvas = ({
   );
 };
 
-export const SequentialAgentCanvas = ({
+export const LLMDrivenAgentCanvas = ({
   nodes,
   edges,
   addAgentNode,

@@ -12,7 +12,12 @@ function HomePage() {
   const [agentType, setAgentType] = useState<number | null>(0);
 
   const handleRoute = () => {
-    const route = agentType === 0 ? "/sequential-agent" : "/parallel-agent";
+    const route =
+      agentType === 0
+        ? "/sequential-agent"
+        : agentType === 1
+        ? "/parallel-agent"
+        : "llmdriven-agent";
     router.push(route);
   };
   return (
@@ -33,7 +38,7 @@ function HomePage() {
           component="h1"
           color="white"
           mt={-5}
-          mb={15}
+          mb={8}
           sx={{
             fontWeight: "bold",
             fontSize: {
@@ -60,6 +65,14 @@ function HomePage() {
               description="Agents run concurrently on the same input, results are aggregated."
               selected={agentType === 1}
               img="/assets/parallel.png"
+            />
+          </Box>
+          <Box onClick={() => setAgentType(2)} mb={3}>
+            <AgentTypeCard
+              type="LLM Driven Agent"
+              description="Define a primary delegator agent and a list of specialist sub-agents it can route tasks to."
+              selected={agentType === 2}
+              img="/assets/llmdriven.png"
             />
           </Box>
         </Box>
