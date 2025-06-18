@@ -4,9 +4,16 @@ import React from "react";
 interface IProps {
   msg: string;
   isParallel?: boolean;
+  isAgent?: boolean;
+  isTool?: boolean;
 }
 
-function SpecialResponse({ msg, isParallel = false }: IProps) {
+function SpecialResponse({
+  msg,
+  isParallel = false,
+  isAgent = false,
+  isTool = false,
+}: IProps) {
   return (
     <Box
       display="flex"
@@ -28,9 +35,7 @@ function SpecialResponse({ msg, isParallel = false }: IProps) {
           py={1.5}
           px={2}
           mb={0.5}
-          bgcolor={
-            msg.includes("Tool") ? "green" : isParallel ? "#725CAD" : "#0B1D51"
-          }
+          bgcolor={isTool ? "green" : isParallel ? "#725CAD" : "#0B1D51"}
           borderRadius="8px 8px 8px 0px"
         >
           <Typography
@@ -41,7 +46,13 @@ function SpecialResponse({ msg, isParallel = false }: IProps) {
             fontFamily={"Inter, sans-serif"}
             lineHeight={1.6}
           >
-            {msg}
+            {isParallel
+              ? `Parallel Agent Called: ${msg}`
+              : isAgent
+              ? `Agent Got Called: ${msg}`
+              : isTool
+              ? `Got Tool Called: ${msg}`
+              : msg}
           </Typography>
         </Box>
       </Box>
