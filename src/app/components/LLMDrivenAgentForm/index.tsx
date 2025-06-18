@@ -267,7 +267,7 @@ function LLMDrivenAgentForm() {
 
     const START_X = 0;
     const START_Y = 60;
-    const NODE_SPACING_X = 300;
+    // const NODE_SPACING_X = 300;
 
     newNodes.push({
       id: "llmdriven-start",
@@ -276,7 +276,7 @@ function LLMDrivenAgentForm() {
       data: { label: "llmdriven-start" },
     });
 
-    let orchestrator = agents.filter((agent: any) => agent.isOrchestrator)[0];
+    const orchestrator = agents.filter((agent: any) => agent.isOrchestrator)[0];
 
     newNodes.push({
       id: "orchestrator",
