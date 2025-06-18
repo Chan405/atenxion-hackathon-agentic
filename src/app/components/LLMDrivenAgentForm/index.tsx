@@ -172,7 +172,7 @@ function LLMDrivenAgentForm() {
         return {
           ...n,
           position: {
-            x: newNode.position.x + 220,
+            x: newNode.position.x + 300,
             y: n.position.y,
           },
         };
@@ -267,74 +267,104 @@ function LLMDrivenAgentForm() {
 
     const START_X = 0;
     const START_Y = 60;
-    const NODE_SPACING_X = 200;
+    const NODE_SPACING_X = 300;
 
     newNodes.push({
       id: "llmdriven-start",
       type: "startNode",
-      position: { x: START_X, y: START_Y },
+      position: { x: START_X, y: START_Y + 60 },
       data: { label: "llmdriven-start" },
     });
 
-    agents.forEach((agent: any, index: number) => {
-      const agentId = `middle-node-${index}`;
-      const posX = START_X + NODE_SPACING_X * (index + 1);
+    let orchestrator = agents.filter((agent: any) => agent.isOrchestrator)[0];
 
-      newNodes.push({
-        id: agentId,
-        type: "middleNode",
-        position: { x: posX, y: START_Y },
-        data: {
-          fields: {
-            name: agent.name,
-            model: agent.chatmodel,
-            instruction: agent.instruction || "",
-            temperature: parseFloat(agent.temperature),
-            topP: parseFloat(agent.topP),
-            tools: agent.tools || [],
-            maxOutputToken: parseInt(agent.maxTokens),
-            description: agent.description || "",
-            outputKeys: agent.outputKeys || [],
-            isOrchestrator: agent.isOrchestrator || false,
-          },
+    newNodes.push({
+      id: "orchestrator",
+      type: "middleNode",
+      position: { x: 200, y: START_Y + 60 },
+      data: {
+        fields: {
+          name: orchestrator.name || "Orchestrator",
+          model: orchestrator.chatmodel || "gpt-4.1",
+          instruction: orchestrator.instruction || "",
+          temperature: parseFloat(orchestrator.temperature) || 0.7,
+          topP: parseFloat(orchestrator.topP) || 1.0,
+          tools: orchestrator.tools || [],
+          maxOutputToken: parseInt(orchestrator.maxTokens) || 16000,
+          description: orchestrator.description || "",
+          outputKeys: orchestrator.outputKeys || [],
+          isOrchestrator: true,
         },
-      });
-
-      const sourceId =
-        index === 0 ? "llmdriven-start" : `middle-node-${index - 1}`;
-      newEdges.push(
-        index == 0 || index === agents.length - 1
-          ? {
-              id: `e${index}`,
-              source: sourceId,
-              target: agentId,
-            }
-          : {
-              id: `e${index}`,
-              source: sourceId,
-              target: agentId,
-              targetHandle: "input",
-            }
-      );
+      },
     });
 
+    agents
+      .filter((ag) => !ag.isOrchestrator)
+      .forEach((agent: any, index: number) => {
+        const agentId = `middle-node-${index}`;
+        const posY = START_Y + index * 150;
+
+        newNodes.push({
+          id: agentId,
+          type: "middleNode",
+          position: { x: 400, y: posY },
+          data: {
+            fields: {
+              name: agent.name,
+              model: agent.chatmodel,
+              instruction: agent.instruction || "",
+              temperature: parseFloat(agent.temperature),
+              topP: parseFloat(agent.topP),
+              tools: agent.tools || [],
+              maxOutputToken: parseInt(agent.maxTokens),
+              description: agent.description || "",
+              outputKeys: agent.outputKeys || [],
+              isOrchestrator: agent.isOrchestrator || false,
+            },
+          },
+        });
+
+        newEdges.push(
+          { id: `e-start-${index}`, source: "orchestrator", target: agentId },
+          {
+            id: `e-merge-${index}`,
+            source: agentId,
+            target: "llmdriven-output",
+          }
+        );
+
+        newEdges.push({
+          id: "e-start",
+          source: "llmdriven-start",
+          target: "orchestrator",
+        });
+
+        // const sourceId =
+        //   index === 0 ? "llmdriven-start" : `middle-node-${index - 1}`;
+        // newEdges.push(
+        //   index == 0 || index === agents.length - 1
+        //     ? {
+        //         id: `e${index}`,
+        //         source: sourceId,
+        //         target: agentId,
+        //       }
+        //     : {
+        //         id: `e${index}`,
+        //         source: sourceId,
+        //         target: agentId,
+        //         targetHandle: "input",
+        //       }
+        // );
+      });
+
     const outputNodeId = "llmdriven-output";
-    const outputPosX = START_X + NODE_SPACING_X * (agents.length + 1);
     newNodes.push({
       id: outputNodeId,
       type: "outputNode",
-      position: { x: outputPosX, y: START_Y },
+      position: { x: 700, y: START_Y + 60 },
       data: { label: "llmdriven-output" },
     });
 
-    if (agents.length > 0) {
-      newEdges.push({
-        id: `e${agents.length}`,
-        source: `middle-node-${agents.length - 1}`,
-        target: outputNodeId,
-        targetHandle: "output",
-      });
-    }
     setNodes(newNodes);
     setEdges(newEdges);
   };
