@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React from "react";
-import { ReactFlow, ReactFlowProvider } from "@xyflow/react";
+import { ReactFlow, ReactFlowProvider, Controls } from "@xyflow/react";
 
 import "@xyflow/react/dist/style.css";
 
@@ -57,7 +57,9 @@ const Canvas = ({
         onConnect={onConnect}
         // edgeTypes={edgeTypes}
         onNodeDoubleClick={(_, node) => handleNodeDoubleClick(node)}
-      ></ReactFlow>
+      >
+        <Controls />
+      </ReactFlow>
     </Box>
   );
 };

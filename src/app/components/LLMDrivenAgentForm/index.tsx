@@ -465,7 +465,7 @@ function LLMDrivenAgentForm() {
     >
       <Box
         sx={{
-          width: "800px",
+          width: "80vw",
           px: 4,
           py: 2,
           display: "flex",
@@ -520,7 +520,7 @@ function LLMDrivenAgentForm() {
         </Box>
         <Box
           sx={{
-            height: "400px",
+            height: "60vh",
           }}
         >
           <LLMDrivenAgentCanvas
