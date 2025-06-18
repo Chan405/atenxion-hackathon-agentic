@@ -4,18 +4,18 @@ import StartNode from "../../CustomNodes/Start";
 
 export const initialNodes = [
   {
-    id: "sequential-start",
+    id: "llmdriven-start",
     type: "startNode",
-    position: { x: 0, y: 60 },
-    data: { label: "sequential-start" },
+    position: { x: 0, y: 160 },
+    data: { label: "llmdriven-start" },
   },
   {
-    id: "middle-node",
+    id: "orchestrator",
     type: "middleNode",
-    position: { x: 160, y: 60 },
+    position: { x: 160, y: 160 },
     data: {
       fields: {
-        name: "Agent 0",
+        name: "Orchestrator",
         model: "gpt-4.1",
         instruction: "",
         temperature: 0.7,
@@ -28,10 +28,10 @@ export const initialNodes = [
     },
   },
   {
-    id: "sequential-output",
+    id: "llmdriven-output",
     type: "outputNode",
-    position: { x: 360, y: 60 },
-    data: { label: "sequential-output" },
+    position: { x: 460, y: 160 },
+    data: { label: "llmdriven-output" },
   },
 ];
 
@@ -42,11 +42,11 @@ export const nodeTypes = {
 };
 
 export const initialEdges = [
-  { id: "e1", source: "sequential-start", target: "middle-node" },
+  { id: "e1", source: "llmdriven-start", target: "orchestrator" },
   {
     id: "e2",
-    source: "middle-node",
-    target: "sequential-output",
+    source: "orchestrator",
+    target: "llmdriven-output",
     targetHandle: "output",
   },
 ];

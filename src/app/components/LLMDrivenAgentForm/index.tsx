@@ -16,6 +16,9 @@ import {
 } from "@/actions/agenticAction";
 import { useParams, useRouter } from "next/navigation";
 
+export const AGENT_X = 400;
+export const AGENT_Y_GAP = 120;
+
 function LLMDrivenAgentForm() {
   const params = useParams();
   const router = useRouter();
@@ -57,42 +60,119 @@ function LLMDrivenAgentForm() {
     setSelectedNode(null);
   };
 
+  // const addAgentNode = () => {
+  //   const START_Y = 60;
+  //   const orchestratorNode = nodes.find((n) => n.id === "orchestrator");
+  //   if (!orchestratorNode) return;
+
+  //   // Find edge from orchestrator
+  //   const edgeFromOrchestrator = edges.find((e) => e.source === "orchestrator");
+  //   if (!edgeFromOrchestrator) return;
+
+  //   const oldTargetId = edgeFromOrchestrator.target;
+  //   const newNodeId = `agent-${Date.now()}`; // unique ID
+
+  //   const agentNodes = nodes.filter((n) => n.type === "middleNode");
+
+  //   // New node position: adjust slightly to the right
+
+  //   const newNode = {
+  //     id: newNodeId,
+  //     type: "middleNode",
+  //     position: {
+  //       x: orchestratorNode.position.x + 200,
+  //       y: orchestratorNode.position.y + 100,
+  //     },
+  //     data: {
+  //       fields: {
+  //         name: `Agent ${agentNodes.length}`,
+  //         model: "gpt-4.1",
+  //         instruction: "",
+  //         temperature: 0.5,
+  //         topP: 1.0,
+  //         tools: [],
+  //         maxOutputToken: 100,
+  //         description: "",
+  //         outputKeys: [],
+  //       },
+  //     },
+  //     onDoubleClick: () => handleNodeDoubleClick(newNode),
+  //   };
+
+  //   const newEdges = [
+  //     {
+  //       id: `orchestrator-${newNodeId}`,
+  //       source: "orchestrator",
+  //       target: newNodeId,
+  //       type: "custom",
+  //     },
+  //     {
+  //       id: `${newNodeId}-${oldTargetId}`,
+  //       source: newNodeId,
+  //       target: oldTargetId,
+  //       type: "custom",
+  //     },
+  //   ];
+
+  //   // Update state
+  //   setNodes((nds) => [...nds, newNode]);
+  //   setEdges((eds) => [
+  //     ...eds.filter((e) => e.id !== edgeFromOrchestrator.id),
+  //     ...newEdges,
+  //   ]);
+  // };
+
   const addAgentNode = () => {
-    const agentNodes = [...nodes].filter((n) => n.type === "middleNode");
-    const lastAgent = agentNodes
-      .sort((a, b) => a.position.x - b.position.x)
-      .pop();
-
-    if (!lastAgent) return;
-
+    const START_Y = 0;
+    const agentNodes = nodes.filter((n) => n.type === "middleNode");
+    const count = agentNodes.length;
     const newNodeId = `middle-node-${Date.now()}`;
-    const newX = lastAgent.position.x + 210;
 
     const newNode = {
       id: newNodeId,
       type: "middleNode",
-      position: { x: newX, y: lastAgent.position.y },
+      position: {
+        x: AGENT_X,
+        y: START_Y + count * AGENT_Y_GAP,
+      },
       data: {
         fields: {
-          name: `Agent ${agentNodes.length + 1}`,
+          name: `Agent ${count + 1}`,
           model: "gpt-4.1",
           instruction: "",
-          temperature: 0.7,
+          temperature: 0.5,
           topP: 1.0,
           tools: [],
-          maxOutputToken: 16000,
+          maxOutputToken: 100,
           description: "",
+          outputKeys: [],
         },
-        onDoubleClick: () => handleNodeDoubleClick(newNode),
       },
     };
 
+    const tempEdges = edges.filter((e) => e.id !== "e2");
+
+    const newEdges = [
+      ...tempEdges,
+      {
+        id: `e-start-${newNodeId}`,
+        source: "orchestrator",
+        target: newNodeId,
+      },
+      {
+        id: `e-${newNodeId}-output`,
+        source: newNodeId,
+        // target: "parallel-output",
+        target: "llmdriven-output",
+      },
+    ];
+
     const updatedNodes = nodes.map((n) => {
-      if (n.id === "sequential-output") {
+      if (n.id === "llmdriven-output") {
         return {
           ...n,
           position: {
-            x: newX + 220,
+            x: newNode.position.x + 220,
             y: n.position.y,
           },
         };
@@ -100,25 +180,8 @@ function LLMDrivenAgentForm() {
       return n;
     });
 
-    const filteredEdges = edges.filter(
-      (e) => !(e.source === lastAgent.id && e.target === "sequential-output")
-    );
-
-    filteredEdges.push({
-      id: `e-${lastAgent.id}-${newNodeId}`,
-      source: lastAgent.id,
-      target: newNodeId,
-    });
-
-    filteredEdges.push({
-      id: `e-${newNodeId}-sequential-output`,
-      source: newNodeId,
-      target: "sequential-output",
-    });
-
-    // @ts-expect-error abc
     setNodes([...updatedNodes, newNode]);
-    setEdges(filteredEdges);
+    // setEdges(newEdges);
   };
 
   const handleDeleteNode = useCallback(
@@ -143,7 +206,7 @@ function LLMDrivenAgentForm() {
           const lastNode =
             remainingMiddleNodes[remainingMiddleNodes.length - 1];
           return updatedNodes.map((n) =>
-            n.id === "sequential-output"
+            n.id === "llmdriven-output"
               ? {
                   ...n,
                   position: {
@@ -176,14 +239,14 @@ function LLMDrivenAgentForm() {
           // Remove any existing edge from last middle node to output to prevent duplicates
           filteredEdges = filteredEdges.filter(
             (e) =>
-              !(e.source === lastNode.id && e.target === "sequential-output")
+              !(e.source === lastNode.id && e.target === "llmdriven-output")
           );
 
           // Add the edge from last remaining middle node to output
           filteredEdges.push({
-            id: `e-${lastNode.id}-sequential-output`,
+            id: `e-${lastNode.id}-llmdriven-output`,
             source: lastNode.id,
-            target: "sequential-output",
+            target: "llmdriven-output",
           });
         }
 
@@ -196,7 +259,7 @@ function LLMDrivenAgentForm() {
     [nodes]
   );
 
-  const buildSequentialNodesAndEdges = (agentValue: any) => {
+  const buildLlmdrivenNodesAndEdges = (agentValue: any) => {
     const agents = agentValue?.agents || [];
 
     const newNodes: any[] = [];
@@ -207,10 +270,10 @@ function LLMDrivenAgentForm() {
     const NODE_SPACING_X = 200;
 
     newNodes.push({
-      id: "sequential-start",
+      id: "llmdriven-start",
       type: "startNode",
       position: { x: START_X, y: START_Y },
-      data: { label: "sequential-start" },
+      data: { label: "llmdriven-start" },
     });
 
     agents.forEach((agent: any, index: number) => {
@@ -237,7 +300,7 @@ function LLMDrivenAgentForm() {
       });
 
       const sourceId =
-        index === 0 ? "sequential-start" : `middle-node-${index - 1}`;
+        index === 0 ? "llmdriven-start" : `middle-node-${index - 1}`;
       newEdges.push(
         index == 0 || index === agents.length - 1
           ? {
@@ -254,13 +317,13 @@ function LLMDrivenAgentForm() {
       );
     });
 
-    const outputNodeId = "sequential-output";
+    const outputNodeId = "llmdriven-output";
     const outputPosX = START_X + NODE_SPACING_X * (agents.length + 1);
     newNodes.push({
       id: outputNodeId,
       type: "outputNode",
       position: { x: outputPosX, y: START_Y },
-      data: { label: "sequential-output" },
+      data: { label: "llmdriven-output" },
     });
 
     if (agents.length > 0) {
@@ -301,13 +364,14 @@ function LLMDrivenAgentForm() {
   const getAgentByID = async () => {
     const response = await getAgenticById(params.id as string);
     if (response) {
-      buildSequentialNodesAndEdges(response);
+      buildLlmdrivenNodesAndEdges(response);
       setAgentName(response.name);
     }
   };
 
   const handleCreateOrUpdateAgent = async () => {
     const agentNodes = nodes.filter((node) => node.data?.fields);
+    console.log("agentNodes", agentNodes, edges);
 
     const agents = agentNodes.map((node) => {
       const fields = node.data.fields;
@@ -333,7 +397,7 @@ function LLMDrivenAgentForm() {
 
     const agentic = {
       name: agentName,
-      type: "sequential",
+      type: "llmdriven",
       agents,
     };
     let response;
