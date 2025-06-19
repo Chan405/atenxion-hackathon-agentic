@@ -300,7 +300,7 @@ function LLMDrivenAgentForm() {
     });
 
     agents
-      .filter((ag) => !ag.isOrchestrator)
+      .filter((ag: any) => !ag.isOrchestrator)
       .forEach((agent: any, index: number) => {
         const agentId = `middle-node-${index}`;
         const posY = START_Y + index * 150;
@@ -308,7 +308,7 @@ function LLMDrivenAgentForm() {
         newNodes.push({
           id: agentId,
           type: "middleNode",
-          position: { x: 400, y: posY },
+          position: { x: 450, y: posY },
           data: {
             fields: {
               name: agent.name,
@@ -333,6 +333,13 @@ function LLMDrivenAgentForm() {
             target: "llmdriven-output",
           }
         );
+
+        newEdges.push({
+          id: `e2`,
+          source: "orchestrator",
+          target: "llmdriven-output",
+          targetHandle: "output",
+        });
 
         newEdges.push({
           id: "e-start",
