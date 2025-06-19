@@ -2,12 +2,15 @@
 import React from "react";
 import { IoSend } from "react-icons/io5";
 import { Box, TextareaAutosize } from "@mui/material";
+import { IoMdSquare } from "react-icons/io";
 
 const SendMessageComponent = ({
+  streaming,
   question,
   setQuestion,
   submitMessage,
 }: {
+  streaming: boolean;
   question: string;
   setQuestion: (value: string) => void;
   submitMessage: () => void;
@@ -90,7 +93,11 @@ const SendMessageComponent = ({
                   }
             }
           >
-            <IoSend color={question?.length > 0 ? "#052659" : "gray"} />
+            {streaming ? (
+              <IoMdSquare color="#1DB954" />
+            ) : (
+              <IoSend color={question?.length > 0 ? "#1DB954" : "gray"} />
+            )}
           </Box>
         </Box>
       </Box>

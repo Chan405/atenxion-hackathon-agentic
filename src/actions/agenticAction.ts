@@ -42,6 +42,15 @@ export async function getAgenticById(agentId: string) {
   }
 }
 
+export async function clearConversation(agentId: string) {
+  try {
+    const response = await axiosServerInstance.get(`/clear-chat/${agentId}`);
+    return response?.data?.data;
+  } catch (error: any) {
+    console.log("error", error?.response?.data);
+  }
+}
+
 export async function getMessageByAgentId(agentId: string) {
   try {
     const response = await axiosServerInstance.get(`/messages/${agentId}`);

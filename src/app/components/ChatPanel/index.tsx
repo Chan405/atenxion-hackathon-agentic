@@ -8,9 +8,15 @@ import ChatQuestion from "../Common/ChatQuestion";
 import ChatResponse from "../Common/ChatResponse";
 import React from "react";
 import SpecialResponse from "../Common/SpecialResponse";
-import { getAllAgentics, getMessageByAgentId } from "@/actions/agenticAction";
+import {
+  clearConversation,
+  getAllAgentics,
+  getMessageByAgentId,
+} from "@/actions/agenticAction";
 import { useRouter } from "next/navigation";
-
+import { GiBroom } from "react-icons/gi";
+import { FaRegEdit } from "react-icons/fa";
+import { RiRobot3Fill } from "react-icons/ri";
 const ChatPanel = ({ id }: { id: string }) => {
   const [question, setQuestion] = useState("");
   const [streamingMessage, setStreamingMessage] = useState("");
@@ -42,6 +48,16 @@ const ChatPanel = ({ id }: { id: string }) => {
     );
   };
 
+  const clearChat = async () => {
+    try {
+      await clearConversation(currentAgent?._id);
+      setPrevMessages([]);
+      setMessages([]);
+    } catch (error: any) {
+      console.error(error.message);
+    }
+  };
+
   useEffect(() => {
     const fetch = async () => {
       const agents = await getAllAgentics();
@@ -66,7 +82,7 @@ const ChatPanel = ({ id }: { id: string }) => {
       py={2}
     >
       <Box
-        width={"20%"}
+        width={"18%"}
         height={"100%"}
         borderRight={"1px solid #e6e6e6"}
         display={"flex"}
@@ -75,54 +91,63 @@ const ChatPanel = ({ id }: { id: string }) => {
       >
         <Typography
           textAlign={"center"}
-          fontSize={20}
+          fontSize={28}
           fontWeight={800}
           color="#052659"
           mt={5}
           mb={3}
-        >
-          Atenxion Multi Agents
-        </Typography>
-        {agents?.length > 0 &&
-          agents.map((agent: any, index: number) => (
-            <Box
-              key={index}
-              color={id === agent?._id ? "white" : "#052659"}
-              py={1}
-              mt={2}
-              borderRadius={"8px"}
-              width={"250px"}
-              bgcolor={id === agent?._id ? "#052659" : "transparent"}
-              border={"1px solid #052659"}
-              sx={{ cursor: "pointer" }}
-              onClick={() => {
-                if (id === agent?._id) return;
-                else router.push(`/chat/${agent?._id}`);
-              }}
-            >
-              <Typography textAlign={"center"} fontSize={14}>
-                {agent?.name}
-              </Typography>
-            </Box>
-          ))}
-        <Box
-          color={"white"}
-          py={1}
-          mt={2}
-          borderRadius={"8px"}
-          width={"250px"}
-          bgcolor={"#052659"}
-          border={"1px solid #052659"}
           sx={{ cursor: "pointer" }}
           onClick={() => {
             router.push("/");
           }}
-          position={"absolute"}
-          bottom={25}
         >
-          <Typography textAlign={"center"} fontSize={14}>
-            Home
-          </Typography>
+          Agentics
+        </Typography>
+        <Box
+          boxSizing={"border-box"}
+          height={"80vh"}
+          maxHeight={"80vh"}
+          overflow={"auto"}
+        >
+          {agents?.length > 0 &&
+            agents.map((agent: any, index: number) => (
+              <Box
+                key={index}
+                color={id === agent?._id ? "white" : "#052659"}
+                py={1}
+                px={2}
+                maxHeight={"50px"}
+                overflow={"hidden"}
+                boxSizing={"border-box"}
+                mt={1.5}
+                borderRadius={"8px"}
+                width={"230px"}
+                bgcolor={id === agent?._id ? "#052659" : "transparent"}
+                sx={{ cursor: "pointer" }}
+                onClick={() => {
+                  if (id === agent?._id) return;
+                  else router.push(`/chat/${agent?._id}`);
+                }}
+              >
+                <Box
+                  display={"flex"}
+                  gap={1.5}
+                  alignItems={"center"}
+                  justifyContent={"start"}
+                >
+                  <RiRobot3Fill size={22} />
+                  <Typography
+                    textAlign={"start"}
+                    fontSize={14}
+                    overflow="hidden"
+                    textOverflow="ellipsis"
+                    noWrap
+                  >
+                    {agent?.name}
+                  </Typography>
+                </Box>
+              </Box>
+            ))}
         </Box>
       </Box>
       <Box
@@ -156,18 +181,24 @@ const ChatPanel = ({ id }: { id: string }) => {
           >
             {currentAgent?.name || ""}
           </Typography>
-          <Typography
-            sx={{ cursor: "pointer" }}
-            alignSelf={"center"}
-            pr={2}
-            color="white"
-            fontWeight={600}
-            onClick={() =>
-              router.push(`/${currentAgent?.type}-agent/${currentAgent?._id}`)
-            }
-          >
-            Edit
-          </Typography>
+          <Box display={"flex"} alignItems={"center"} gap={3} mr={1}>
+            <GiBroom
+              color="white"
+              size={24}
+              cursor={"pointer"}
+              onClick={clearChat}
+            />
+
+            <FaRegEdit
+              color="white"
+              size={22}
+              style={{ marginRight: 14 }}
+              cursor={"pointer"}
+              onClick={() =>
+                router.push(`/${currentAgent?.type}-agent/${currentAgent?._id}`)
+              }
+            />
+          </Box>
         </Box>
         <Box
           width={"100%"}
@@ -237,6 +268,7 @@ const ChatPanel = ({ id }: { id: string }) => {
           )}
         </Box>
         <SendMessageComponent
+          streaming={streaming}
           setQuestion={setQuestion}
           question={question}
           submitMessage={submitMessage}
