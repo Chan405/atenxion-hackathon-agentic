@@ -49,6 +49,11 @@ function AgentCreateModal({
       label: "RAG as a tool",
       image: "/assets/Atenxion_Logo.svg",
     },
+    {
+      value: "MCPLine",
+      label: "LINE as MCP",
+      image: "/assets/line.png",
+    },
   ];
 
   const values = selectedNode.data.fields;

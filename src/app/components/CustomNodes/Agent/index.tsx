@@ -102,6 +102,13 @@ const AgentNode = ({ data }: any) => {
                   width={16}
                   height={16}
                 />
+              ) : tool === "MCPLine" ? (
+                <Image
+                  src="/assets/line.png"
+                  alt="MCP Line"
+                  width={16}
+                  height={16}
+                />
               ) : (
                 <Image
                   src="/assets/Atenxion_Logo.svg"
