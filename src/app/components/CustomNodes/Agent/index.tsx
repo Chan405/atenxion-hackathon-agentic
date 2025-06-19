@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, IconButton, Tooltip } from "@mui/material";
+import { Box, Tooltip } from "@mui/material";
 import { Handle, Position } from "@xyflow/react";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import React from "react";
 import BodyText from "../../Typeface/BodyText";
 import Image from "next/image";
@@ -36,8 +34,7 @@ const AgentNode = ({ data }: any) => {
     >
       <Box
         sx={{
-          width: 150,
-          maxWidth: 160,
+          width: 200,
           backgroundColor: "rgb(223, 248, 255)",
           borderRadius: "12px",
           border: "2px solid #4dd0e1",
