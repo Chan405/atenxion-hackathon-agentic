@@ -6,7 +6,12 @@ import ButtonComponent from "../Common/ButtonComponent";
 
 import Input from "../Common/Input";
 import { SequentialAgentCanvas } from "./SequentialAgentCanvas";
-import { addEdge, useEdgesState, useNodesState } from "@xyflow/react";
+import {
+  addEdge,
+  MarkerType,
+  useEdgesState,
+  useNodesState,
+} from "@xyflow/react";
 import { initialEdges, initialNodes } from "./SequentialAgentCanvas/data";
 import AgentCreateModal from "../Common/AgentCreateModal";
 import {
@@ -108,13 +113,17 @@ function SequentialAgentForm() {
       id: `e-${lastAgent.id}-${newNodeId}`,
       source: lastAgent.id,
       target: newNodeId,
-    });
+      style: { stroke: "#4dd0e1" },
+      markerEnd: { type: MarkerType.ArrowClosed, color: "#4dd0e1" },
+    } as any);
 
     filteredEdges.push({
       id: `e-${newNodeId}-sequential-output`,
       source: newNodeId,
       target: "sequential-output",
-    });
+      style: { stroke: "#4dd0e1" },
+      markerEnd: { type: MarkerType.ArrowClosed, color: "#4dd0e1" },
+    } as any);
 
     // @ts-expect-error abc
     setNodes([...updatedNodes, newNode]);
@@ -184,6 +193,7 @@ function SequentialAgentForm() {
             id: `e-${lastNode.id}-sequential-output`,
             source: lastNode.id,
             target: "sequential-output",
+           
           });
         }
 
@@ -245,12 +255,16 @@ function SequentialAgentForm() {
               id: `e${index}`,
               source: sourceId,
               target: agentId,
+              // style: { stroke: "#4dd0e1" },
+              // markerEnd: { type: MarkerType.ArrowClosed, color: "#4dd0e1" },
             }
           : {
               id: `e${index}`,
               source: sourceId,
               target: agentId,
               targetHandle: "input",
+              // style: { stroke: "#4dd0e1" },
+              // markerEnd: { type: MarkerType.ArrowClosed, color: "#4dd0e1" },
             }
       );
     });
@@ -270,6 +284,8 @@ function SequentialAgentForm() {
         source: `middle-node-${agents.length - 1}`,
         target: outputNodeId,
         targetHandle: "output",
+          style: { stroke: "#4dd0e1" },
+              markerEnd: { type: MarkerType.ArrowClosed, color: "#4dd0e1" },
       });
     }
     setNodes(newNodes);
@@ -387,7 +403,7 @@ function SequentialAgentForm() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "end",
-            borderBottom: "1px solid #052659",
+            borderBottom: "0.5px solid #052659",
             pb: 3,
           }}
         >
