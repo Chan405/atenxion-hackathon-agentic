@@ -16,6 +16,8 @@ const AgentNode = ({ data }: any) => {
             borderRadius: "8px",
             fontSize: "13px",
             minWidth: 20,
+            maxHeight: 200,
+            overflowY: "auto",
           }}
         >
           <Box sx={{ mb: 0.5 }}>
