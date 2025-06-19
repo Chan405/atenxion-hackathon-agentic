@@ -16,8 +16,8 @@ import {
 } from "@/actions/agenticAction";
 import { useParams, useRouter } from "next/navigation";
 
-export const AGENT_X = 400;
-export const AGENT_Y_GAP = 120;
+export const AGENT_X = 500;
+export const AGENT_Y_GAP = 100;
 
 function LLMDrivenAgentForm() {
   const params = useParams();

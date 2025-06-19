@@ -12,7 +12,7 @@ export const initialNodes = [
   {
     id: "middle-node",
     type: "middleNode",
-    position: { x: 160, y: 60 },
+    position: { x: 200, y: 60 },
     data: {
       fields: {
         name: "Agent 0",
@@ -30,7 +30,7 @@ export const initialNodes = [
   {
     id: "sequential-output",
     type: "outputNode",
-    position: { x: 360, y: 60 },
+    position: { x: 460, y: 60 },
     data: { label: "sequential-output" },
   },
 ];
