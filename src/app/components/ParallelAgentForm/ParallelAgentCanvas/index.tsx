@@ -23,7 +23,6 @@ interface CanvasProps {
 const Canvas = ({
   nodes,
   edges,
-
   onNodesChange,
   onEdgesChange,
   onConnect,

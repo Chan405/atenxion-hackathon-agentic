@@ -150,10 +150,10 @@ function LLMDrivenAgentForm() {
       },
     };
 
-    const tempEdges = edges.filter((e) => e.id !== "e2");
+    // const tempEdges = edges.filter((e) => e.id !== "e2");
 
     const newEdges = [
-      ...tempEdges,
+      ...edges,
       {
         id: `e-start-${newNodeId}`,
         source: "orchestrator",
@@ -180,6 +180,7 @@ function LLMDrivenAgentForm() {
       return n;
     });
 
+    // @ts-expect-error // React Flow types
     setNodes([...updatedNodes, newNode]);
     setEdges(newEdges);
   };
