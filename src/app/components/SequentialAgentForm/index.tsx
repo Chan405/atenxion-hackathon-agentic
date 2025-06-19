@@ -232,6 +232,7 @@ function SequentialAgentForm() {
             maxOutputToken: parseInt(agent.maxTokens),
             description: agent.description || "",
             outputKeys: agent.outputKeys || [],
+            datastore: agent.datastore || "",
           },
         },
       });

@@ -25,6 +25,7 @@ export const initialNodes = [
         description: "",
         outputKeys: [],
         isOrchestrator: true,
+        datastore: "",
       },
     },
   },

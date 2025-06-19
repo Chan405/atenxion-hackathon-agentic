@@ -44,6 +44,11 @@ function AgentCreateModal({
       label: "Atenxion Agent",
       image: "/assets/Atenxion_Logo.svg",
     },
+    {
+      value: "RAG",
+      label: "RAG as a tool",
+      image: "/assets/Atenxion_Logo.svg",
+    },
   ];
 
   const values = selectedNode.data.fields;
@@ -54,11 +59,12 @@ function AgentCreateModal({
     instruction: values.instruction || "",
     temperature: values.temperature || 0.7,
     topP: values.topP || 1.0,
-
     tools: values.tools || [],
     maxOutputToken: values.maxOutputToken || 16000,
     description: values.description || "",
     outputKeys: values.outputKeys || [],
+    datastore: values.datastore || "",
+    isOrchestrator: values.isOrchestrator || false,
   };
 
   return (
@@ -273,6 +279,20 @@ function AgentCreateModal({
                       </Box>
                     </Box>
                   ))}
+
+                  {values.tools.includes("RAG") && (
+                    <Input
+                      type="Datastore"
+                      label="Datastore"
+                      name="datastore"
+                      min={0}
+                      max={1}
+                      value={values.datastore || ""}
+                      placeholder="Enter the datastore name you want to use"
+                      showLabel
+                      onChange={handleChange}
+                    />
+                  )}
                 </Box>
               </Box>
             </Box>

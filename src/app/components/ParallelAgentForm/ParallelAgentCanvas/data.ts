@@ -7,7 +7,7 @@ const START_X = 0;
 const START_Y = 40;
 
 export const AGENT_X = 170;
-export const AGENT_Y_GAP = 120;
+export const AGENT_Y_GAP = 150;
 
 const OUTPUT_X = 700;
 

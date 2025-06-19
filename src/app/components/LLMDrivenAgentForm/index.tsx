@@ -146,6 +146,8 @@ function LLMDrivenAgentForm() {
           maxOutputToken: 100,
           description: "",
           outputKeys: [],
+          isOrchestrator: false,
+          datastore: "",
         },
       },
     };
@@ -321,6 +323,7 @@ function LLMDrivenAgentForm() {
               description: agent.description || "",
               outputKeys: agent.outputKeys || [],
               isOrchestrator: agent.isOrchestrator || false,
+              datastore: agent.datastore || "",
             },
           },
         });
@@ -378,6 +381,7 @@ function LLMDrivenAgentForm() {
   };
 
   const handleSaveAgent = (id: string, values: any) => {
+    console.log("handleSaveAgent", id, values);
     setNodes((prevNodes) =>
       prevNodes.map((node) =>
         node.id === id
@@ -431,6 +435,7 @@ function LLMDrivenAgentForm() {
           maxTokens: String(fields.maxOutputToken),
           outputKeys: fields.outputKeys,
           isOrchestrator: fields.isOrchestrator || false,
+          datastore: fields.datastore || "",
         };
       }
     });
