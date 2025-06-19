@@ -16,6 +16,8 @@ const AgentNode = ({ data }: any) => {
             borderRadius: "8px",
             fontSize: "13px",
             minWidth: 20,
+            maxHeight: 200,
+            overflowY: "auto",
           }}
         >
           <Box sx={{ mb: 0.5 }}>
@@ -102,6 +104,13 @@ const AgentNode = ({ data }: any) => {
                   width={16}
                   height={16}
                 />
+              ) : tool === "MCPLine" ? (
+                <Image
+                  src="/assets/line.png"
+                  alt="MCP Line"
+                  width={16}
+                  height={16}
+                />
               ) : (
                 <Image
                   src="/assets/Atenxion_Logo.svg"
@@ -118,13 +127,26 @@ const AgentNode = ({ data }: any) => {
           type="source"
           position={Position.Right}
           id="right"
-          color="#4dd0e1"
+          style={{
+            background: "#4dd0e1", // Cyan color
+            width: "1px", // Width of rectangle
+            height: "18px", // Height of rectangle
+            borderRadius: "0", // Remove rounded corners for sharp rectangle
+            transform: "translateY(-10px)", // Center vertically
+          }}
         />
+
         <Handle
           type="target"
           position={Position.Left}
           id="left"
-          color="#4dd0e1"
+          style={{
+            background: "#4dd0e1", // Cyan color
+            width: "1px", // Width of rectangle
+            height: "18px", // Height of rectangle
+            borderRadius: "0", // Remove rounded corners
+            transform: "translateY(-15px)", // Center vertically
+          }}
         />
       </Box>
     </Tooltip>
