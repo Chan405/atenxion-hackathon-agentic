@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import ModalContainer from "../Modal";
 import Input from "../Input";
-import { Box } from "@mui/material";
+import { Box, Divider } from "@mui/material";
 import SelectComponent from "../SelectComponent";
 import TextArea from "../TextArea";
 import BodyText from "../../Typeface/BodyText";
@@ -10,7 +10,8 @@ import { Formik } from "formik";
 import TagInput from "../TagInput";
 import IOSSwitch from "../IOSSwitch";
 import Image from "next/image";
-
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
 interface ModalProps {
   open: boolean;
   handleClose: () => void;
@@ -60,7 +61,13 @@ function AgentCreateModal({
     description: values.description || "",
     outputKeys: values.outputKeys || [],
   };
+  const advancedRef = useRef<HTMLDivElement>(null);
+  const [advanceOpen, setAdvanceOpen] = React.useState(false);
 
+  const handleAdvanceOpen = () => {
+    setAdvanceOpen(!advanceOpen);
+    advancedRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
   return (
     <Formik
       initialValues={initialValues}
@@ -157,123 +164,154 @@ function AgentCreateModal({
                   onChange={handleChange}
                 />
               </Box>
-
-              <Box display={"flex"} flexDirection={"column"} gap={1}>
-                <BodyText variant="small" weight={"medium"}>
-                  Output Keys
-                </BodyText>
-                <TagInput
-                  values={values?.outputKeys}
-                  onChangeHandler={(newValue) => {
-                    setFieldValue("outputKeys", newValue);
-                  }}
-                  placeholder=""
-                />
-              </Box>
               <Box
-                display={"flex"}
-                mt={-5}
-                gap={2}
-                width={"100%"}
-                alignItems={"center"}
+                sx={{
+                  border: "1px solid #E0E0E0",
+                  borderRadius: "10px",
+                  padding: "10px",
+                }}
               >
-                <Input
-                  type="number"
-                  label="Max Output Token"
-                  name="maxOutputToken"
-                  value={values.maxOutputToken}
-                  showLabel
-                  onChange={handleChange}
-                />
-
-                <Input
-                  type="number"
-                  label="Temperature"
-                  name="temperature"
-                  value={values.temperature}
-                  min={0.1}
-                  max={0.9}
-                  showLabel
-                  onChange={handleChange}
-                />
-                <Input
-                  type="number"
-                  label="Top P"
-                  name="topP"
-                  min={0}
-                  max={1}
-                  value={values.topP}
-                  showLabel
-                  onChange={handleChange}
-                />
-              </Box>
-
-              <Box width={"100%"}>
-                {/* <SelectComponent
-                  label="Tools"
-                  name="tools"
-                  value={values.tools}
-                  onChange={(e) => setFieldValue("tools", e.target.value)}
-                  options={toolLists}
-                /> */}
                 <Box
                   sx={{
-                    border: "1px solid #E0E0E0",
-                    borderRadius: "8px",
-                    padding: "10px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
                   }}
+                  onClick={handleAdvanceOpen}
                 >
-                  <BodyText
-                    variant="small"
-                    mb={1}
-                    sx={{ display: "flex", flexDirection: "column" }}
-                  >
-                    Tools
-                  </BodyText>
-                  {toolLists.map((tool) => (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        marginBottom: "10px",
-                      }}
-                      key={tool.value}
-                    >
-                      <Image
-                        src={tool.image}
-                        alt={tool.label}
-                        width={30}
-                        height={30}
-                        style={{ marginRight: "10px" }}
-                      />{" "}
-                      <Box
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="space-between"
-                        width="100%"
-                        paddingY={1}
+                  <Box>
+                    <BodyText variant="small" weight={"medium"}>
+                      Advance Setting
+                    </BodyText>
+                  </Box>
+                  <Box>
+                    {advanceOpen ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+                  </Box>
+                </Box>
+                {advanceOpen && (
+                  <Box   sx={{ mt: 3 }}>
+                    <Box display={"flex"} flexDirection={"column"} gap={1}>
+                      <BodyText
+                        variant="small"
+                        weight={"medium"}
+                      
                       >
-                        <BodyText variant="small" weight="regular">
-                          {tool.label}
+                        Output Keys
+                      </BodyText>
+                      <TagInput
+                        values={values?.outputKeys}
+                        onChangeHandler={(newValue) => {
+                          setFieldValue("outputKeys", newValue);
+                        }}
+                        placeholder=""
+                      />
+                    </Box>
+                    <Box
+                      display={"flex"}
+                      mt={-5}
+                      gap={2}
+                      width={"100%"}
+                      alignItems={"center"}
+                    >
+                      <Input
+                        type="number"
+                        label="Max Output Token"
+                        name="maxOutputToken"
+                        value={values.maxOutputToken}
+                        showLabel
+                        onChange={handleChange}
+                      />
+
+                      <Input
+                        type="number"
+                        label="Temperature"
+                        name="temperature"
+                        value={values.temperature}
+                        min={0.1}
+                        max={0.9}
+                        showLabel
+                        onChange={handleChange}
+                      />
+                      <Input
+                        type="number"
+                        label="Top P"
+                        name="topP"
+                        min={0}
+                        max={1}
+                        value={values.topP}
+                        showLabel
+                        onChange={handleChange}
+                      />
+                    </Box>
+                    <Box width={"100%"} sx={{ mt: 2 }}>
+                      {/* <SelectComponent
+      label="Tools"
+      name="tools"
+      value={values.tools}
+      onChange={(e) => setFieldValue("tools", e.target.value)}
+      options={toolLists}
+    /> */}
+                      <Box
+                        sx={{
+                          // border: "1px solid #E0E0E0",
+                          // borderRadius: "8px",
+                          padding: "10px",
+                        }}
+                      >
+                        <BodyText
+                          variant="small"
+                          mb={1}
+                          sx={{ display: "flex", flexDirection: "column" }}
+                        >
+                          Tools
                         </BodyText>
-                        <IOSSwitch
-                          checked={values.tools.includes(tool.value)}
-                          onChange={(e) => {
-                            const checked = e.target.checked;
-                            const newValue = checked
-                              ? [...values.tools, tool.value]
-                              : values.tools.filter(
-                                  (val: any) => val !== tool.value
-                                );
-                            setFieldValue("tools", newValue);
-                          }}
-                          name="toggleSwitch"
-                          color="primary"
-                        />
+                        {toolLists.map((tool) => (
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "10px",
+                            }}
+                            key={tool.value}
+                          >
+                            <Image
+                              src={tool.image}
+                              alt={tool.label}
+                              width={30}
+                              height={30}
+                              style={{ marginRight: "10px" }}
+                            />{" "}
+                            <Box
+                              display="flex"
+                              alignItems="center"
+                              justifyContent="space-between"
+                              width="100%"
+                              paddingY={1}
+                            >
+                              <BodyText variant="small" weight="regular">
+                                {tool.label}
+                              </BodyText>
+                              <IOSSwitch
+                                checked={values.tools.includes(tool.value)}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  const newValue = checked
+                                    ? [...values.tools, tool.value]
+                                    : values.tools.filter(
+                                        (val: any) => val !== tool.value
+                                      );
+                                  setFieldValue("tools", newValue);
+                                }}
+                                name="toggleSwitch"
+                                color="primary"
+                              />
+                            </Box>
+                          </Box>
+                        ))}
                       </Box>
                     </Box>
-                  ))}
-                </Box>
+                  </Box>
+                )}
               </Box>
             </Box>
           </ModalContainer>
