@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Box, Tooltip } from "@mui/material";
 import { Handle, Position } from "@xyflow/react";
-import SupportAgentIcon from "@mui/icons-material/SupportAgent";
+import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import React from "react";
 import BodyText from "../../Typeface/BodyText";
+import Image from "next/image";
 
 const AgentNode = ({ data }: any) => {
   return (
@@ -14,7 +15,7 @@ const AgentNode = ({ data }: any) => {
             p: 1.2,
             borderRadius: "8px",
             fontSize: "13px",
-            minWidth: 200,
+            minWidth: 20,
           }}
         >
           <Box sx={{ mb: 0.5 }}>
@@ -33,52 +34,98 @@ const AgentNode = ({ data }: any) => {
     >
       <Box
         sx={{
-          height: "50px",
-          backgroundColor: "#fff",
-          borderRadius: "8px",
+          width: 200,
+          backgroundColor: "rgb(223, 248, 255)",
+          borderRadius: "12px",
           border: "2px solid #4dd0e1",
-          display: "flex",
-          justifyContent: "start",
-          alignItems: "center",
-          gap: 1,
-          px: 2,
-          position: "relative",
+          overflow: "hidden",
+          fontFamily: "sans-serif",
         }}
         onDoubleClick={data.onDoubleClick}
       >
-        <SupportAgentIcon sx={{ color: "#4dd0e1" }} />
+        {/* Header */}
         <Box
           sx={{
             display: "flex",
-            flexDirection: "column",
-            alignItems: "start",
-            gap: 0.4,
+            alignItems: "center",
+            justifyContent: "space-between",
+            px: 1.5,
+            py: 1,
+            borderBottom: "1px solid #4dd0e1",
           }}
         >
-          <BodyText
-            variant="medium"
-            weight="semibold"
-            color="#616161"
-            whiteSpace={"nowrap"}
-          >
-            {data.fields.name || ""}
-          </BodyText>
-          <BodyText
-            variant="small"
-            weight="semibold"
-            color="#fff"
-            whiteSpace={"nowrap"}
-            bgcolor={"#4dd0e1"}
-            borderRadius={"12px"}
-            px={2}
-          >
-            {data.fields.model.includes("gemini")
-              ? "Gemini"
-              : data.fields.model}
-          </BodyText>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <RocketLaunchIcon sx={{ fontSize: 18 }} color="info" />
+            <BodyText variant="medium" weight="semibold" whiteSpace="nowrap">
+              {data.fields.name || ""}
+            </BodyText>
+          </Box>
         </Box>
-        <Handle type="source" position={Position.Right} id={"right"} />
-        <Handle type="target" position={Position.Left} id={"left"} />
+
+        {/* Body */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 1,
+            py: 0.5,
+          }}
+        >
+          <Box sx={{ p: 1.5 }}>
+            <BodyText
+              variant="small"
+              weight="semibold"
+              whiteSpace={"nowrap"}
+              borderRadius={"12px"}
+            >
+              {data.fields.model.includes("gemini")
+                ? "Gemini"
+                : data.fields.model}
+            </BodyText>
+          </Box>
+
+          {data.fields.tools.map((tool: any, index: number) => (
+            <Box key={index}>
+              {tool === "WebSearch" ? (
+                <Image
+                  src="/assets/websearch.png"
+                  alt="Web Search"
+                  width={16}
+                  height={16}
+                />
+              ) : tool === "CodeInterpreter" ? (
+                <Image
+                  src="/assets/code.png"
+                  alt="Code Interpreter"
+                  width={16}
+                  height={16}
+                />
+              ) : (
+                <Image
+                  src="/assets/Atenxion_Logo.svg"
+                  alt="File Upload"
+                  width={16}
+                  height={16}
+                />
+              )}
+            </Box>
+          ))}
+        </Box>
+
+        <Handle
+          type="source"
+          position={Position.Right}
+          id="right"
+          color="#4dd0e1"
+        />
+        <Handle
+          type="target"
+          position={Position.Left}
+          id="left"
+          color="#4dd0e1"
+        />
       </Box>
     </Tooltip>
   );

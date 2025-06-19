@@ -66,7 +66,7 @@ function SequentialAgentForm() {
     if (!lastAgent) return;
 
     const newNodeId = `middle-node-${Date.now()}`;
-    const newX = lastAgent.position.x + 210;
+    const newX = lastAgent.position.x + 250;
 
     const newNode = {
       id: newNodeId,
