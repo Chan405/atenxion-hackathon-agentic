@@ -1,6 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { Box, Typography } from "@mui/material";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import SendMessageComponent from "../Common/SendMessageComponent";
 import { chat } from "@/app/service/chatService";
 import { useEffect, useRef, useState } from "react";
@@ -8,6 +15,8 @@ import ChatQuestion from "../Common/ChatQuestion";
 import ChatResponse from "../Common/ChatResponse";
 import React from "react";
 import SpecialResponse from "../Common/SpecialResponse";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import {
   clearConversation,
   getAllAgentics,
@@ -19,6 +28,9 @@ import { FaRegEdit } from "react-icons/fa";
 import { RiRobot3Fill } from "react-icons/ri";
 const ChatPanel = ({ id }: { id: string }) => {
   const [question, setQuestion] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState<{ [key: number]: boolean }>(
+    {}
+  );
   const [streamingMessage, setStreamingMessage] = useState("");
   const [streaming, setStreaming] = useState(false);
   const messageRef = useRef<HTMLDivElement>(null);
@@ -218,22 +230,100 @@ const ChatPanel = ({ id }: { id: string }) => {
                 {msg?.chains.map((chain: any, index: number) => (
                   <Box key={index}>
                     {chain?.agentName && (
-                      <SpecialResponse
-                        msg={chain?.agentName}
-                        isParallel={chain?.isParallel}
-                        isAgent
-                      />
+                      <>
+                        <Accordion
+                          defaultExpanded
+                          sx={{
+                            boxShadow: "none",
+                            border: "none",
+                            "&:before": {
+                              display: "none",
+                            },
+                          }}
+                        >
+                          <AccordionSummary
+                            aria-controls={`panel${index}-content`}
+                            id={`panel${index}-header`}
+                          >
+                            <SpecialResponse
+                              msg={chain?.agentName}
+                              isParallel={chain?.isParallel}
+                              isAgent
+                            />
+                            <Box display="flex" alignItems="center">
+                              <IconButton
+                                onClick={() =>
+                                  setDropdownOpen((prev) => ({
+                                    ...prev,
+                                    [index]: !prev[index],
+                                  }))
+                                }
+                                sx={{  p: 0 }}
+                              >
+                                {dropdownOpen[index] ? (
+                                  <ExpandMoreIcon
+                                    sx={{
+                                      ml:
+                                        chain?.agentName?.length > 6
+                                          ? -136
+                                          : -156,
+                                      zIndex: 100,
+                                      color: "white",
+                                      pt: 1,
+                                      width: "20px",
+                                      height: "20px",
+                                    }}
+                                  />
+                                ) : (
+                                  <ExpandLessIcon
+                                    sx={{
+                                      ml:
+                                        chain?.agentName?.length > 6
+                                          ? -136
+                                          : -156,
+                                      zIndex: 100,
+                                      color: "white",
+                                      pt: 1,
+                                      width: "20px",
+                                      height: "20px",
+                                    }}
+                                  />
+                                )}
+                              </IconButton>
+                            </Box>
+                          </AccordionSummary>
+                          <AccordionDetails>
+                            {/* {chain?.agentResponse && (
+            <ChatResponse msg={chain.agentResponse} />
+          ) : (
+            <Typography color="gray">No response.</Typography>
+          )} */}
+                            <Box sx={{ mt: -4 }}>
+                              {chain?.agentResponse && (
+                                <ChatResponse msg={chain.agentResponse} />
+                              )}
+                            </Box>
+                            {chain?.toolsUsage?.length > 0 && (
+                              <SpecialResponse
+                                msg={chain?.toolsUsage}
+                                isParallel={chain?.parallel}
+                                isTool
+                              />
+                            )}
+                          </AccordionDetails>
+                        </Accordion>
+                      </>
                     )}
-                    {chain?.toolsUsage?.length > 0 && (
+                    {/* {chain?.toolsUsage?.length > 0 && (
                       <SpecialResponse
                         msg={chain?.toolsUsage}
                         isParallel={chain?.parallel}
                         isTool
                       />
-                    )}
-                    {chain?.agentResponse && (
+                    )} */}
+                    {/* {chain?.agentResponse && (
                       <ChatResponse msg={chain?.agentResponse} />
-                    )}
+                    )} */}
                   </Box>
                 ))}
               </Box>

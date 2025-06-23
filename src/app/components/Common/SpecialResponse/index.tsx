@@ -34,6 +34,7 @@ function SpecialResponse({
         <Box
           py={1.5}
           px={2}
+          pr={3}
           mb={0.5}
           bgcolor={isTool ? "green" : isParallel ? "#725CAD" : "#0B1D51"}
           borderRadius="8px 8px 8px 0px"
