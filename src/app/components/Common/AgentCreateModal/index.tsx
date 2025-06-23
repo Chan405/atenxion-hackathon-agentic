@@ -55,6 +55,11 @@ function AgentCreateModal({
       label: "LINE as MCP",
       image: "/assets/line.png",
     },
+    {
+      value: "HumanHandover",
+      label: "Zoho Human Handover",
+      image: "/assets/line.png",
+    },
   ];
 
   const values = selectedNode.data.fields;

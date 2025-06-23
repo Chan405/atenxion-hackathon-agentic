@@ -7,7 +7,6 @@ import "@xyflow/react/dist/style.css";
 
 import { Box } from "@mui/material";
 import { nodeTypes } from "./data";
-import { CustomEdge } from "../../CustomEdge";
 
 interface CanvasProps {
   nodes: any[];
@@ -27,10 +26,6 @@ const Canvas = ({
   onConnect,
   handleNodeDoubleClick,
 }: CanvasProps) => {
-  const edgeTypes = {
-    custom: CustomEdge,
-  };
-
   return (
     <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
       {/* <Box

@@ -24,6 +24,7 @@ export const initialNodes = [
         maxOutputToken: 16000,
         description: "",
         outputKeys: [],
+        datastore: "",
       },
     },
   },
