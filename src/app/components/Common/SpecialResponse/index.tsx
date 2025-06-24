@@ -47,11 +47,11 @@ function SpecialResponse({
             lineHeight={1.6}
           >
             {isParallel
-              ? `Parallel Agent Called: ${msg}`
+              ? `🍻 Parallel Agent Called: ${msg}`
               : isAgent
-              ? `Agent Got Called: ${msg}`
+              ? `🤖 Agent Got Called: ${msg}`
               : isTool
-              ? `Got Tool Called: ${msg}`
+              ? `🛠 Got Tool Called: ${msg}`
               : msg}
           </Typography>
         </Box>
