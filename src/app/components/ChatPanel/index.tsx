@@ -310,7 +310,7 @@ const ChatPanel = ({ id }: { id: string }) => {
                       />
                     )}
 
-                    {chain?.agentName &&
+                    {/* {chain?.agentName &&
                       chain?.humanResponse &&
                       !chain?.isHumanEnded && (
                         <ChatResponse
@@ -321,7 +321,7 @@ const ChatPanel = ({ id }: { id: string }) => {
                           }
                           isSystem={true}
                         />
-                      )}
+                      )} */}
                     {chain.guardrails && (
                       <Typography
                         fontSize={14}
