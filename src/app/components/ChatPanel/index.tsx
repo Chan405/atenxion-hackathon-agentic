@@ -191,35 +191,6 @@ const ChatPanel = ({ id }: { id: string }) => {
       agents.forEach((agent: any, index: number) => {
         const agentId = `middle-node-${index}`;
         const posY = START_Y + index * 150;
-        {
-          prevMessages?.length > 0 &&
-            prevMessages.map((msg: any, index: number) => (
-              <Box key={index}>
-                {msg?.question && <ChatQuestion msg={msg?.question} />}
-                {msg?.chains.map((chain: any, index: number) => (
-                  <Box key={index}>
-                    {chain?.agentName && (
-                      <SpecialResponse
-                        msg={chain?.agentName}
-                        isParallel={chain?.isParallel}
-                        isAgent
-                      />
-                    )}
-                    {chain?.agentResponse && (
-                      <ChatResponse msg={chain.agentResponse} />
-                    )}
-                    {chain?.toolsUsage?.length > 0 && (
-                      <SpecialResponse
-                        msg={chain?.toolsUsage}
-                        isParallel={chain?.parallel}
-                        isTool
-                      />
-                    )}
-                  </Box>
-                ))}
-              </Box>
-            ));
-        }
         newNodes.push({
           id: agentId,
           type: "middleNode",
