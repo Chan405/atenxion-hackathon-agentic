@@ -22,7 +22,7 @@ interface ModalProps {
 
 export const toolLists = [
   {
-    value: "WebSearchTavily",
+    value: "WebCrawlTavily",
     label: "Web Search",
     image: "/assets/websearch.png",
   },
