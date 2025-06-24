@@ -31,11 +31,11 @@ export const toolLists = [
     label: "Code Interpreter",
     image: "/assets/code.png",
   },
-  {
-    value: "AtenxionAgent",
-    label: "Atenxion Agent",
-    image: "/assets/Atenxion_Logo.svg",
-  },
+  // {
+  //   value: "AtenxionAgent",
+  //   label: "Atenxion Agent",
+  //   image: "/assets/Atenxion_Logo.svg",
+  // },
   {
     value: "RAG",
     label: "RAG as a tool",
@@ -47,9 +47,14 @@ export const toolLists = [
     image: "/assets/line.png",
   },
   {
+    value: "Authenticator",
+    label: "Authenticator",
+    image: "/assets/authenticator.png",
+  },
+  {
     value: "HumanHandover",
     label: "Zoho Human Handover",
-    image: "/assets/zoho.png",
+    image: "/assets/salesiq.png",
   },
 ];
 
@@ -63,6 +68,11 @@ export const guardrailsList = [
     value: "PIIGuard",
     label: "PII Guard",
     image: "/assets/personal-information.png",
+  },
+  {
+    value: "AuthenticationGuard",
+    label: "Authentication Guard",
+    image: "/assets/shield.png",
   },
 ];
 
