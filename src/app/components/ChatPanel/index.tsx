@@ -10,6 +10,7 @@ import React from "react";
 import SpecialResponse from "../Common/SpecialResponse";
 import {
   clearConversation,
+  getAgenticById,
   getAllAgentics,
   getMessageByAgentId,
 } from "@/actions/agenticAction";
@@ -30,6 +31,9 @@ const ChatPanel = ({ id }: { id: string }) => {
   const [agents, setAgents] = useState([]);
   const [prevMessages, setPrevMessages] = useState([]);
   const router = useRouter();
+  const [currentAgent, setCurrentAgent] = useState<any>(null);
+  const humanConversationRef = useRef(false);
+
   const scrollToBottom = () => {
     messageRef.current?.scrollTo({
       behavior: "smooth",
@@ -38,7 +42,25 @@ const ChatPanel = ({ id }: { id: string }) => {
   };
 
   useEffect(() => {
-    // 👇 Connect to FastAPI socket.io backend
+    const fetchAgent = async () => {
+      try {
+        const response = await getAgenticById(id);
+        if (response) {
+          setCurrentAgent(response);
+          if (response?.humanHandover) {
+            humanConversationRef.current = true;
+          }
+        } else {
+          console.error("Agent not found");
+        }
+      } catch (error: any) {
+        console.error("Error fetching agent:", error.message);
+      }
+    };
+    fetchAgent();
+  }, []);
+
+  useEffect(() => {
     socket = io(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}`);
 
     socket.on("connect", () => {
@@ -46,11 +68,41 @@ const ChatPanel = ({ id }: { id: string }) => {
 
       // Send message
       socket.emit("message", "Hello from Next.js!");
+    });
 
-      socket.on("admin_reply", (data: any) => {
-        console.log("Received message from server:", data);
-        // setMessages((prev) => [...prev, data]);
-      });
+    socket.on("admin_reply", (data: any) => {
+      console.log("human conversation", humanConversationRef.current);
+
+      if (id === data?.agentId) {
+        if (!humanConversationRef.current) {
+          humanConversationRef.current = true;
+
+          setMessages((prev) => [
+            ...prev,
+            {
+              text: "👩‍💼 " + data?.sender + " joined the conversation",
+              user: false,
+              system: true,
+            },
+          ]);
+        }
+
+        setMessages((prev) => [
+          ...prev,
+          { text: data.message, user: false, human: true },
+        ]);
+      }
+    });
+
+    socket.on("conversation_closed", (data: any) => {
+      console.log("Conversation closed:", data);
+      if (id === data?.agentId) {
+        setMessages((prev) => [
+          ...prev,
+          { text: "👋 Conversation closed", user: false, system: true },
+        ]);
+        humanConversationRef.current = false;
+      }
     });
 
     socket.on("disconnect", () => {
@@ -97,9 +149,6 @@ const ChatPanel = ({ id }: { id: string }) => {
     fetch();
   }, []);
 
-  const currentAgent: any = agents?.filter(
-    (agent: any) => agent?._id === id
-  )[0];
   return (
     <Box
       width={"100%"}
@@ -246,14 +295,33 @@ const ChatPanel = ({ id }: { id: string }) => {
 
                 {msg?.chains.map((chain: any, index: number) => (
                   <Box key={index}>
-                    {console.log(chain)}
-                    {chain?.agentName && (
+                    {chain?.isHumanStarted && (
+                      <ChatResponse
+                        msg="👩‍💼 Human joined the conversation"
+                        isSystem={true}
+                      />
+                    )}
+
+                    {chain?.agentName && !chain?.humanResponse && (
                       <SpecialResponse
                         msg={chain?.agentName}
                         isParallel={chain?.isParallel}
                         isAgent
                       />
                     )}
+
+                    {chain?.agentName &&
+                      chain?.humanResponse &&
+                      !chain?.isHumanEnded && (
+                        <ChatResponse
+                          msg={
+                            "👩‍💼 " +
+                            chain?.agentName +
+                            " joined the conversation"
+                          }
+                          isSystem={true}
+                        />
+                      )}
                     {chain.guardrails && (
                       <Typography
                         fontSize={14}
@@ -272,8 +340,18 @@ const ChatPanel = ({ id }: { id: string }) => {
                         isTool
                       />
                     )}
+                    {chain?.humanResponse && (
+                      <ChatResponse msg={chain?.humanResponse} isHuman={true} />
+                    )}
                     {chain?.agentResponse && (
                       <ChatResponse msg={chain?.agentResponse} />
+                    )}
+
+                    {chain?.isHumanEnded && (
+                      <ChatResponse
+                        msg="👋 Conversation closed"
+                        isSystem={true}
+                      />
                     )}
                   </Box>
                 ))}
@@ -313,7 +391,13 @@ const ChatPanel = ({ id }: { id: string }) => {
                     </Typography>
                   )}
 
-                  {msg?.text && <ChatResponse msg={msg?.text} />}
+                  {msg?.text && (
+                    <ChatResponse
+                      msg={msg?.text}
+                      isHuman={msg?.human}
+                      isSystem={msg?.system}
+                    />
+                  )}
                 </Box>
               );
           })}

@@ -14,6 +14,7 @@ function SpecialResponse({
   isAgent = false,
   isTool = false,
 }: IProps) {
+  console.log("SpecialResponse", { msg });
   return (
     <Box
       display="flex"

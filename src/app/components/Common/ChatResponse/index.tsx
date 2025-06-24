@@ -1,15 +1,30 @@
 /* eslint-disable */
 
-import { Box } from "@mui/material";
+import { Box, Divider, Typography } from "@mui/material";
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 interface IProps {
   msg: string;
+  isHuman?: boolean;
+  isSystem?: boolean;
 }
 
-function ChatResponse({ msg }: IProps) {
+function ChatResponse({ msg, isHuman, isSystem }: IProps) {
+  if (isSystem)
+    return (
+      <Box display="flex" alignItems="center" my={2}>
+        <Divider sx={{ flex: 1, borderColor: "#1976d2" }} />
+        <Typography
+          variant="body2"
+          sx={{ mx: 2, color: "#1976d2", whiteSpace: "nowrap" }}
+        >
+          {msg}
+        </Typography>
+        <Divider sx={{ flex: 1, borderColor: "#1976d2" }} />
+      </Box>
+    );
   return (
     <Box
       display="flex"
@@ -29,8 +44,8 @@ function ChatResponse({ msg }: IProps) {
           py={2}
           px={3}
           mb={0.5}
-          bgcolor={"transparent"}
-          border={"1px solid #e6e6e6"}
+          bgcolor={isHuman ? "#e5f3fd" : "transparent"}
+          border="1px solid #e6e6e6"
           borderRadius="20px 20px 20px 0px"
         >
           <Box
