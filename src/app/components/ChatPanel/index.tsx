@@ -59,7 +59,8 @@ const ChatPanel = ({ id }: { id: string }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [agentName, setAgentName] = useState<string>("");
-
+  const [activeAgentId, setActiveAgentId] = useState<string | null>(null);
+  console.log("activeAgentId", activeAgentId);
   const router = useRouter();
   const scrollToBottom = () => {
     messageRef.current?.scrollTo({
@@ -119,9 +120,9 @@ const ChatPanel = ({ id }: { id: string }) => {
               outputKeys: agent.outputKeys || [],
               datastore: agent.datastore || "",
             },
+            activeAgentId:activeAgentId,
           },
         });
-
         const sourceId =
           index === 0 ? "sequential-start" : `middle-node-${index - 1}`;
         newEdges.push(
@@ -208,6 +209,7 @@ const ChatPanel = ({ id }: { id: string }) => {
               outputKeys: agent.outputKeys || "",
               datastore: agent.datastore || "",
             },
+             activeAgentId:activeAgentId,
           },
         });
 
@@ -251,6 +253,7 @@ const ChatPanel = ({ id }: { id: string }) => {
             outputKeys: orchestrator.outputKeys || [],
             isOrchestrator: true,
           },
+               activeAgentId:activeAgentId,
         },
       });
 
@@ -278,6 +281,7 @@ const ChatPanel = ({ id }: { id: string }) => {
                 isOrchestrator: agent.isOrchestrator || false,
                 datastore: agent.datastore || "",
               },
+              activeAgentId:activeAgentId,
             },
           });
 
@@ -323,7 +327,7 @@ const ChatPanel = ({ id }: { id: string }) => {
     if (params.id) {
       getAgentByID();
     }
-  }, []);
+  }, [activeAgentId, params.id]);
   const submitMessage = async () => {
     setMessages((prev) => [...prev, { text: question, user: true }]);
     setQuestion("");
@@ -333,7 +337,8 @@ const ChatPanel = ({ id }: { id: string }) => {
       streamingMessage,
       setStreamingMessage,
       setMessages,
-      setStreaming
+      setStreaming,
+      setActiveAgentId
     );
   };
   const handleOpen = () => setModalOpen(true);
@@ -579,90 +584,51 @@ const ChatPanel = ({ id }: { id: string }) => {
                 {msg?.question && <ChatQuestion msg={msg?.question} />}
 
                 {msg?.chains.map((chain: any, index: number) => (
-                  <Box key={index}>
-                    {chain?.agentName && (
-                      <>
-                        {/* <Accordion
-                          defaultExpanded
-                          sx={{
-                            // bgcolor:"red",
-                            boxShadow: "none",
-                            border: "none",
-                            "&:before": {
-                              display: "none",
-                            },
-                          }}
-                        >
-                          <AccordionSummary
-                            expandIcon={null}
-                            aria-controls={`panel${index}-content`}
-                            id={`panel${index}-header`}
-                          > */}
-                        <Box
-                          display="flex"
-                          alignItems="center"
-                          width="100%"
-                          p={1}
-                          borderRadius="8px"
-                        >
-                          {/* <SpecialResponse
+                  <Accordion
+                    key={index}
+                    defaultExpanded={true}
+                    sx={{
+                      boxShadow: "none",
+                      "&:before": { display: "none" },
+                      backgroundColor: "transparent",
+                      mb: 1,
+                    }}
+                  >
+                    <AccordionSummary
+                      expandIcon={<div />}
+                      sx={{
+                        minHeight: "auto",
+                        "& .MuiAccordionSummary-content": {
+                          margin: 0,
+                        },
+                        p: 0,
+                      }}
+                    >
+                      <Box width="100%">
+                        {chain?.agentName && (
+                          <SpecialResponse
                             msg={chain?.agentName}
                             isParallel={chain?.isParallel}
                             isAgent
-                          /> */}
+                          />
+                        )}
+                      </Box>
+                    </AccordionSummary>
 
-                          {/* <IconButton
-                                onClick={() =>
-                                  setDropdownOpen((prev) => ({
-                                    ...prev,
-                                    [index]: !prev[index],
-                                  }))
-                                }
-                                sx={{ p: 0 }}
-                              >
-                                {dropdownOpen[index] ? (
-                                  <ExpandMoreIcon
-                                    sx={{
-                                      ml:
-                                        chain?.agentName?.length > 10
-                                          ? -130
-                                          : -146,
-                                      zIndex: 100,
-                                      color: "white",
-                                      pt: 0.5,
-                                      width: "20px",
-                                      height: "20px",
-                                    }}
-                                  />
-                                ) : (
-                                  <ExpandLessIcon
-                                    sx={{
-                                      ml:
-                                        chain?.agentName?.length > 10
-                                          ? -130
-                                          : -146,
-                                      zIndex: 100,
-                                      color: "white",
-                                      pt: 0.5,
-                                      width: "20px",
-                                      height: "20px",
-                                    }}
-                                  />
-                                )}
-                              </IconButton> */}
-                        </Box>
-                        {/* </AccordionSummary>
-                          <AccordionDetails> */}
-                        <Box sx={{}}>
-                          {chain?.agentResponse && (
-                            <ChatResponse
-                              msg={chain.agentResponse}
-                              agent={chain?.agentName}
-                              isParallel={chain?.isParallel}
-                              isAgent
-                            />
-                          )}
-                        </Box>
+                    <AccordionDetails sx={{ p: 0 }}>
+                      <Box>
+                        {chain.guardrails && (
+                          <Typography
+                            fontSize={14}
+                            fontWeight={500}
+                            color="#052659"
+                            mt={1}
+                            mb={1}
+                          >
+                            Guardrails: {chain.guardrails}
+                          </Typography>
+                        )}
+
                         {chain?.toolsUsage?.length > 0 && (
                           <SpecialResponse
                             msg={chain?.toolsUsage}
@@ -670,24 +636,57 @@ const ChatPanel = ({ id }: { id: string }) => {
                             isTool
                           />
                         )}
-                        {/* </AccordionDetails>
-                        </Accordion> */}
-                      </>
-                    )}
-                    {/* {chain?.toolsUsage?.length > 0 && (
-                      <SpecialResponse
-                        msg={chain?.toolsUsage}
-                        isParallel={chain?.parallel}
-                        isTool
-                      />
-                    )} */}
-                    {/* {chain?.agentResponse && (
-                      <ChatResponse msg={chain?.agentResponse} />
-                    )} */}
-                  </Box>
+
+                        {chain?.agentResponse && (
+                          <ChatResponse msg={chain?.agentResponse} />
+                        )}
+                      </Box>
+                    </AccordionDetails>
+                  </Accordion>
                 ))}
               </Box>
             ))}
+          {messages.map((msg, index) => {
+            if (msg?.user) return <ChatQuestion msg={msg?.text} key={index} />;
+            else
+              return (
+                <Box
+                  key={index}
+                  display={"flex"}
+                  flexDirection={"column"}
+                  justifyContent={"center"}
+                  gap={1}
+                >
+                  {msg?.toolCall && (
+                    <SpecialResponse msg={msg?.toolCall} isTool />
+                  )}
+
+                  {msg?.agentCall && (
+                    <SpecialResponse
+                      msg={msg?.agentCall}
+                      isParallel={msg.parallel}
+                      isAgent
+                    />
+                  )}
+                  {/* {msg?.guardrails && (
+                    <Typography
+                      fontSize={14}
+                      fontWeight={500}
+                      color="#052659"
+                      mt={1}
+                      mb={1}
+                    >
+                      Guardrails: {msg.guardrails}
+                    </Typography>
+                  )} */}
+
+                  {msg?.text && <ChatResponse msg={msg?.text} />}
+                </Box>
+              );
+          })}
+          {streamingMessage?.length > 0 && streaming && (
+            <ChatResponse msg={streamingMessage} />
+          )}
           {messages.map((msg, index) => {
             if (msg?.user) return <ChatQuestion msg={msg?.text} key={index} />;
             else

@@ -6,7 +6,15 @@ import React from "react";
 import BodyText from "../../Typeface/BodyText";
 import Image from "next/image";
 
-const AgentNode = ({ data }: any) => {
+const AgentNode = ({ data}: any) => {
+    const isActive =
+  String(data.fields.name).trim() === String(data.activeAgentId).trim();// Check if the agent is active based on the name matching the activeAgentId
+    // const isActive=true;
+// console.log("data.fields.name:", JSON.stringify(data.fields.name));
+// console.log("data.activeAgentId:", JSON.stringify(data.activeAgentId));
+// console.log("Equal?", data.fields.name === data.activeAgentId);
+
+// console.log('isActive', isActive, data.fields.name, data.activeAgentId);#
   return (
     <Tooltip
       title={
@@ -39,9 +47,26 @@ const AgentNode = ({ data }: any) => {
           width: 200,
           backgroundColor: "rgb(223, 248, 255)",
           borderRadius: "12px",
-          border: "2px solid #4dd0e1",
+          border: isActive ? "2px solid #4dd0e1" : "1px solid black" , 
           overflow: "hidden",
           fontFamily: "sans-serif",
+           position: "relative",
+          // Glow effect when active
+          ...(isActive && {
+            boxShadow: "0 0 10px 3px rgba(77, 208, 225, 0.7)",
+            animation: "pulse 1.5s infinite",
+          }),
+          "@keyframes pulse": {
+            "0%": {
+              boxShadow: "0 0 5px 2px rgba(77, 208, 225, 0.5)",
+            },
+            "50%": {
+              boxShadow: "0 0 15px 5px rgba(77, 208, 225, 0.9)",
+            },
+            "100%": {
+              boxShadow: "0 0 5px 2px rgba(77, 208, 225, 0.5)",
+            },
+          },
         }}
         onDoubleClick={data.onDoubleClick}
       >
