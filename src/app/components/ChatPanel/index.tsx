@@ -17,6 +17,10 @@ import { useRouter } from "next/navigation";
 import { GiBroom } from "react-icons/gi";
 import { FaRegEdit } from "react-icons/fa";
 import { RiRobot3Fill } from "react-icons/ri";
+import { io, Socket } from "socket.io-client";
+
+let socket: Socket;
+
 const ChatPanel = ({ id }: { id: string }) => {
   const [question, setQuestion] = useState("");
   const [streamingMessage, setStreamingMessage] = useState("");
@@ -32,6 +36,31 @@ const ChatPanel = ({ id }: { id: string }) => {
       top: messageRef.current.scrollHeight,
     });
   };
+
+  useEffect(() => {
+    // 👇 Connect to FastAPI socket.io backend
+    socket = io(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}`);
+
+    socket.on("connect", () => {
+      console.log("Connected to socket.io server");
+
+      // Send message
+      socket.emit("message", "Hello from Next.js!");
+
+      socket.on("admin_reply", (data: any) => {
+        console.log("Received message from server:", data);
+        // setMessages((prev) => [...prev, data]);
+      });
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Socket disconnected");
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   useEffect(() => scrollToBottom(), [streamingMessage, messages]);
 
