@@ -80,6 +80,11 @@ export async function chat(
                   ...prev,
                   { toolCall: jsonData.response },
                 ]);
+              } else if (jsonData.status === "Guardrail Triggered") {
+                setMessages((prev) => [
+                  ...prev,
+                  { guardrails: jsonData.response },
+                ]);
               } else if (jsonData.status === "End of stream") {
                 setMessages((prev) => [...prev, { text: jsonData.response }]);
               }

@@ -1,20 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, Tooltip } from "@mui/material";
+import { Box, Tooltip, Typography } from "@mui/material";
 import { Handle, Position } from "@xyflow/react";
 import RocketLaunchIcon from "@mui/icons-material/RocketLaunch";
 import React from "react";
 import BodyText from "../../Typeface/BodyText";
 import Image from "next/image";
+import { guardrailsList, toolLists } from "../../Common/AgentCreateModal";
 
-const AgentNode = ({ data}: any) => {
-    const isActive =
-  String(data.fields.name).trim() === String(data.activeAgentId).trim();// Check if the agent is active based on the name matching the activeAgentId
-    // const isActive=true;
-// console.log("data.fields.name:", JSON.stringify(data.fields.name));
-// console.log("data.activeAgentId:", JSON.stringify(data.activeAgentId));
-// console.log("Equal?", data.fields.name === data.activeAgentId);
-
-// console.log('isActive', isActive, data.fields.name, data.activeAgentId);#
+const AgentNode = ({ data }: any) => {
+  const isActive =
+    String(data.fields.name).trim() === String(data.activeAgentId).trim();
   return (
     <Tooltip
       title={
@@ -47,11 +42,10 @@ const AgentNode = ({ data}: any) => {
           width: 200,
           backgroundColor: "rgb(223, 248, 255)",
           borderRadius: "12px",
-          border: isActive ? "2px solid #4dd0e1" : "1px solid black" , 
+          border: isActive ? "2px solid #4dd0e1" : "1px solid black",
           overflow: "hidden",
           fontFamily: "sans-serif",
-           position: "relative",
-          // Glow effect when active
+          position: "relative",
           ...(isActive && {
             boxShadow: "0 0 10px 3px rgba(77, 208, 225, 0.7)",
             animation: "pulse 1.5s infinite",
@@ -115,38 +109,68 @@ const AgentNode = ({ data}: any) => {
 
           {data.fields.tools.map((tool: any, index: number) => (
             <Box key={index}>
-              {tool === "WebSearch" ? (
-                <Image
-                  src="/assets/websearch.png"
-                  alt="Web Search"
-                  width={16}
-                  height={16}
-                />
-              ) : tool === "CodeInterpreter" ? (
-                <Image
-                  src="/assets/code.png"
-                  alt="Code Interpreter"
-                  width={16}
-                  height={16}
-                />
-              ) : tool === "MCPLine" ? (
-                <Image
-                  src="/assets/line.png"
-                  alt="MCP Line"
-                  width={16}
-                  height={16}
-                />
-              ) : (
-                <Image
-                  src="/assets/Atenxion_Logo.svg"
-                  alt="File Upload"
-                  width={16}
-                  height={16}
-                />
-              )}
+              {toolLists.map((item) => {
+                if (item.value === tool) {
+                  return (
+                    <Image
+                      key={item.value}
+                      src={item.image}
+                      alt={item.label}
+                      width={16}
+                      height={16}
+                    />
+                  );
+                }
+                return null;
+              })}
             </Box>
           ))}
         </Box>
+
+        {data.fields.guardrails?.length > 0 && (
+          <Box
+            px={1.5}
+            display="flex"
+            flexDirection="row"
+            gap={1}
+            py={1}
+            sx={{
+              borderTop: "1px solid #4dd0e1",
+            }}
+          >
+            <Typography>
+              <BodyText variant="small" weight="semibold">
+                Guardrails
+              </BodyText>
+            </Typography>
+            <Box
+              display="flex"
+              flexDirection="row"
+              alignItems="center"
+              justifyContent="center"
+              gap={1}
+            >
+              {data.fields.guardrails.map((guardrail: any, index: number) => (
+                <Box key={index}>
+                  {guardrailsList.map((item) => {
+                    if (item.value === guardrail) {
+                      return (
+                        <Image
+                          key={item.value}
+                          src={item.image}
+                          alt={item.label}
+                          width={16}
+                          height={16}
+                        />
+                      );
+                    }
+                    return null;
+                  })}
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        )}
 
         <Handle
           type="source"

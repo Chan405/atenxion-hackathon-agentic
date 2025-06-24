@@ -87,6 +87,8 @@ function SequentialAgentForm() {
           tools: [],
           maxOutputToken: 16000,
           description: "",
+          outputKeys: [],
+          datastore: "",
         },
         onDoubleClick: () => handleNodeDoubleClick(newNode),
       },
@@ -193,7 +195,6 @@ function SequentialAgentForm() {
             id: `e-${lastNode.id}-sequential-output`,
             source: lastNode.id,
             target: "sequential-output",
-           
           });
         }
 
@@ -284,8 +285,8 @@ function SequentialAgentForm() {
         source: `middle-node-${agents.length - 1}`,
         target: outputNodeId,
         targetHandle: "output",
-          style: { stroke: "#4dd0e1" },
-              markerEnd: { type: MarkerType.ArrowClosed, color: "#4dd0e1" },
+        style: { stroke: "#4dd0e1" },
+        markerEnd: { type: MarkerType.ArrowClosed, color: "#4dd0e1" },
       });
     }
     setNodes(newNodes);
@@ -344,6 +345,7 @@ function SequentialAgentForm() {
           topP: String(fields.topP),
           maxTokens: String(fields.maxOutputToken),
           outputKeys: fields.outputKeys,
+          datastore: fields.datastore || "",
         };
       }
     });

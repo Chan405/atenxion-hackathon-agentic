@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import {
@@ -5,7 +6,6 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
-  IconButton,
   Modal,
   Typography,
 } from "@mui/material";
@@ -16,8 +16,6 @@ import ChatQuestion from "../Common/ChatQuestion";
 import ChatResponse from "../Common/ChatResponse";
 import React from "react";
 import SpecialResponse from "../Common/SpecialResponse";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import LiveTvIcon from "@mui/icons-material/LiveTv";
 import {
   clearConversation,
@@ -29,13 +27,9 @@ import { useParams, useRouter } from "next/navigation";
 import { GiBroom } from "react-icons/gi";
 import { FaRegEdit } from "react-icons/fa";
 import { RiRobot3Fill } from "react-icons/ri";
-import {
-  addEdge,
-  ReactFlow,
-  ReactFlowProvider,
-  useEdgesState,
-  useNodesState,
-} from "@xyflow/react";
+import { io, Socket } from "socket.io-client";
+
+import { ReactFlowProvider, useEdgesState, useNodesState } from "@xyflow/react";
 import { SequentialAgentCanvas } from "../SequentialAgentForm/SequentialAgentCanvas";
 import {
   initialEdges,
@@ -46,9 +40,6 @@ import { LLMDrivenAgentCanvas } from "../LLMDrivenAgentForm/LLMDrivenAgentCanvas
 
 const ChatPanel = ({ id }: { id: string }) => {
   const [question, setQuestion] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState<{ [key: number]: boolean }>(
-    {}
-  );
   const [streamingMessage, setStreamingMessage] = useState("");
   const [streaming, setStreaming] = useState(false);
   const messageRef = useRef<HTMLDivElement>(null);
@@ -62,12 +53,85 @@ const ChatPanel = ({ id }: { id: string }) => {
   const [activeAgentId, setActiveAgentId] = useState<string | null>(null);
   console.log("activeAgentId", activeAgentId);
   const router = useRouter();
+  const humanConversationRef = useRef(false);
+  let socket: Socket;
   const scrollToBottom = () => {
     messageRef.current?.scrollTo({
       behavior: "smooth",
       top: messageRef.current.scrollHeight,
     });
   };
+
+  useEffect(() => {
+    const fetchAgent = async () => {
+      try {
+        const response = await getAgenticById(id);
+        if (response) {
+          if (response?.humanHandover) {
+            humanConversationRef.current = true;
+          }
+        } else {
+          console.error("Agent not found");
+        }
+      } catch (error: any) {
+        console.error("Error fetching agent:", error.message);
+      }
+    };
+    fetchAgent();
+  }, []);
+
+  useEffect(() => {
+    socket = io(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}`);
+
+    socket.on("connect", () => {
+      console.log("Connected to socket.io server");
+
+      socket.emit("message", "Hello from Next.js!");
+    });
+
+    socket.on("admin_reply", (data: any) => {
+      console.log("human conversation", humanConversationRef.current);
+
+      if (id === data?.agentId) {
+        if (!humanConversationRef.current) {
+          humanConversationRef.current = true;
+
+          setMessages((prev) => [
+            ...prev,
+            {
+              text: "👩‍💼 " + data?.sender + " joined the conversation",
+              user: false,
+              system: true,
+            },
+          ]);
+        }
+
+        setMessages((prev) => [
+          ...prev,
+          { text: data.message, user: false, human: true },
+        ]);
+      }
+    });
+
+    socket.on("conversation_closed", (data: any) => {
+      console.log("Conversation closed:", data);
+      if (id === data?.agentId) {
+        setMessages((prev) => [
+          ...prev,
+          { text: "👋 Conversation closed", user: false, system: true },
+        ]);
+        humanConversationRef.current = false;
+      }
+    });
+
+    socket.on("disconnect", () => {
+      console.log("Socket disconnected");
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
   const params = useParams();
   const getAgentByID = async () => {
     const response = await getAgenticById(params.id as string);
@@ -79,7 +143,9 @@ const ChatPanel = ({ id }: { id: string }) => {
   };
 
   useEffect(() => scrollToBottom(), [streamingMessage, messages]);
+
   const buildNodesAndEdges = (agentValue: any) => {
+    console.log("agentValue", agentValue);
     const agentType = agentValue?.type; // "sequential", "parallel", or "llmdriven"
     const agents = agentValue?.agents || [];
 
@@ -99,7 +165,7 @@ const ChatPanel = ({ id }: { id: string }) => {
         data: { label: "sequential-start" },
       });
 
-      agents.forEach((agent: any, index: number) => {
+      agents?.forEach((agent: any, index: number) => {
         const agentId = `middle-node-${index}`;
         const posX = START_X + NODE_SPACING_X * (index + 1);
 
@@ -120,13 +186,13 @@ const ChatPanel = ({ id }: { id: string }) => {
               outputKeys: agent.outputKeys || [],
               datastore: agent.datastore || "",
             },
-            activeAgentId:activeAgentId,
+            activeAgentId: activeAgentId,
           },
         });
         const sourceId =
           index === 0 ? "sequential-start" : `middle-node-${index - 1}`;
         newEdges.push(
-          index == 0 || index === agents.length - 1
+          index == 0 || index === agents?.length - 1
             ? {
                 id: `e${index}`,
                 source: sourceId,
@@ -142,7 +208,7 @@ const ChatPanel = ({ id }: { id: string }) => {
       });
 
       const outputNodeId = "sequential-output";
-      const outputPosX = START_X + NODE_SPACING_X * (agents.length + 1);
+      const outputPosX = START_X + NODE_SPACING_X * (agents?.length + 1);
       newNodes.push({
         id: outputNodeId,
         type: "outputNode",
@@ -150,7 +216,7 @@ const ChatPanel = ({ id }: { id: string }) => {
         data: { label: "sequential-output" },
       });
 
-      if (agents.length > 0) {
+      if (agents?.length > 0) {
         newEdges.push({
           id: `e${agents.length}`,
           source: `middle-node-${agents.length - 1}`,
@@ -189,7 +255,7 @@ const ChatPanel = ({ id }: { id: string }) => {
 
       newEdges = [];
 
-      agents.forEach((agent: any, index: number) => {
+      agents?.forEach((agent: any, index: number) => {
         const agentId = `middle-node-${index}`;
         const posY = START_Y + index * 150;
         newNodes.push({
@@ -209,7 +275,7 @@ const ChatPanel = ({ id }: { id: string }) => {
               outputKeys: agent.outputKeys || "",
               datastore: agent.datastore || "",
             },
-             activeAgentId:activeAgentId,
+            activeAgentId: activeAgentId,
           },
         });
 
@@ -232,7 +298,7 @@ const ChatPanel = ({ id }: { id: string }) => {
         data: { label: "llmdriven-start" },
       });
 
-      const orchestrator = agents.filter(
+      const orchestrator = agents?.filter(
         (agent: any) => agent.isOrchestrator
       )[0];
 
@@ -253,47 +319,53 @@ const ChatPanel = ({ id }: { id: string }) => {
             outputKeys: orchestrator.outputKeys || [],
             isOrchestrator: true,
           },
-               activeAgentId:activeAgentId,
+          activeAgentId: activeAgentId,
         },
       });
 
-      agents
-        .filter((ag: any) => !ag.isOrchestrator)
-        .forEach((agent: any, index: number) => {
-          const agentId = `middle-node-${index}`;
-          const posY = START_Y + index * 150;
+      if (agents?.length > 2) {
+        agents
+          ?.filter((ag: any) => !ag.isOrchestrator)
+          .forEach((agent: any, index: number) => {
+            const agentId = `middle-node-${index}`;
+            const posY = START_Y + index * 150;
 
-          newNodes.push({
-            id: agentId,
-            type: "middleNode",
-            position: { x: 450, y: posY },
-            data: {
-              fields: {
-                name: agent.name,
-                model: agent.chatmodel,
-                instruction: agent.instruction || "",
-                temperature: parseFloat(agent.temperature),
-                topP: parseFloat(agent.topP),
-                tools: agent.tools || [],
-                maxOutputToken: parseInt(agent.maxTokens),
-                description: agent.description || "",
-                outputKeys: agent.outputKeys || [],
-                isOrchestrator: agent.isOrchestrator || false,
-                datastore: agent.datastore || "",
+            newNodes.push({
+              id: agentId,
+              type: "middleNode",
+              position: { x: 450, y: posY },
+              data: {
+                fields: {
+                  name: agent.name,
+                  model: agent.chatmodel,
+                  instruction: agent.instruction || "",
+                  temperature: parseFloat(agent.temperature),
+                  topP: parseFloat(agent.topP),
+                  tools: agent.tools || [],
+                  maxOutputToken: parseInt(agent.maxTokens),
+                  description: agent.description || "",
+                  outputKeys: agent.outputKeys || [],
+                  isOrchestrator: agent.isOrchestrator || false,
+                  datastore: agent.datastore || "",
+                },
+                activeAgentId: activeAgentId,
               },
-              activeAgentId:activeAgentId,
-            },
-          });
+            });
 
-          newEdges.push(
-            { id: `e-start-${index}`, source: "orchestrator", target: agentId },
-            {
-              id: `e-merge-${index}`,
-              source: agentId,
-              target: "llmdriven-output",
-            }
-          );
-        });
+            newEdges.push(
+              {
+                id: `e-start-${index}`,
+                source: "orchestrator",
+                target: agentId,
+              },
+              {
+                id: `e-merge-${index}`,
+                source: agentId,
+                target: "llmdriven-output",
+              }
+            );
+          });
+      }
 
       newEdges.push({
         id: `e2`,
@@ -316,18 +388,19 @@ const ChatPanel = ({ id }: { id: string }) => {
         data: { label: "llmdriven-output" },
       });
     } else {
-      // Optional: handle unknown type
       console.warn("Unknown agent type:", agentType);
     }
 
     setNodes(newNodes);
     setEdges(newEdges);
   };
+
   useEffect(() => {
     if (params.id) {
       getAgentByID();
     }
   }, [activeAgentId, params.id]);
+
   const submitMessage = async () => {
     setMessages((prev) => [...prev, { text: question, user: true }]);
     setQuestion("");
@@ -357,7 +430,7 @@ const ChatPanel = ({ id }: { id: string }) => {
   useEffect(() => {
     const fetch = async () => {
       const agents = await getAllAgentics();
-      setAgents(agents.data);
+      setAgents(agents?.data);
       const response = await getMessageByAgentId(id);
       setPrevMessages(response);
     };
@@ -515,8 +588,8 @@ const ChatPanel = ({ id }: { id: string }) => {
                 top: "50%",
                 left: "50%",
                 transform: "translate(-50%, -50%)",
-                width: "80vw", // Increased width
-                height: "80vh", // Increased height
+                width: "80vw",
+                height: "80vh",
                 bgcolor: "background.paper",
                 boxShadow: 24,
                 p: 4,
@@ -584,65 +657,63 @@ const ChatPanel = ({ id }: { id: string }) => {
                 {msg?.question && <ChatQuestion msg={msg?.question} />}
 
                 {msg?.chains.map((chain: any, index: number) => (
-                  <Accordion
-                    key={index}
-                    defaultExpanded={true}
-                    sx={{
-                      boxShadow: "none",
-                      "&:before": { display: "none" },
-                      backgroundColor: "transparent",
-                      mb: 1,
-                    }}
-                  >
-                    <AccordionSummary
-                      expandIcon={<div />}
-                      sx={{
-                        minHeight: "auto",
-                        "& .MuiAccordionSummary-content": {
-                          margin: 0,
-                        },
-                        p: 0,
-                      }}
-                    >
-                      <Box width="100%">
-                        {chain?.agentName && (
-                          <SpecialResponse
-                            msg={chain?.agentName}
-                            isParallel={chain?.isParallel}
-                            isAgent
-                          />
-                        )}
-                      </Box>
-                    </AccordionSummary>
+                  <Box key={index}>
+                    <Box width="100%">
+                      {chain?.isHumanStarted && (
+                        <ChatResponse
+                          msg="👩‍💼 Human joined the conversation"
+                          isSystem={true}
+                        />
+                      )}
 
-                    <AccordionDetails sx={{ p: 0 }}>
-                      <Box>
-                        {chain.guardrails && (
-                          <Typography
-                            fontSize={14}
-                            fontWeight={500}
-                            color="#052659"
-                            mt={1}
-                            mb={1}
-                          >
-                            Guardrails: {chain.guardrails}
-                          </Typography>
-                        )}
+                      {chain?.agentName && !chain?.humanResponse && (
+                        <SpecialResponse
+                          msg={chain?.agentName}
+                          isParallel={chain?.isParallel}
+                          isAgent
+                        />
+                      )}
 
-                        {chain?.toolsUsage?.length > 0 && (
-                          <SpecialResponse
-                            msg={chain?.toolsUsage}
-                            isParallel={chain?.parallel}
-                            isTool
-                          />
-                        )}
+                      {chain.guardrails && (
+                        <Typography
+                          fontSize={14}
+                          fontWeight={500}
+                          color="#052659"
+                          mt={1}
+                          mb={1}
+                        >
+                          Guardrails: {chain.guardrails}
+                        </Typography>
+                      )}
+                    </Box>
 
-                        {chain?.agentResponse && (
-                          <ChatResponse msg={chain?.agentResponse} />
-                        )}
-                      </Box>
-                    </AccordionDetails>
-                  </Accordion>
+                    <Box>
+                      {chain?.toolsUsage?.length > 0 && (
+                        <SpecialResponse
+                          msg={chain?.toolsUsage}
+                          isParallel={chain?.parallel}
+                          isTool
+                        />
+                      )}
+                      {chain?.humanResponse && (
+                        <ChatResponse
+                          msg={chain?.humanResponse}
+                          isHuman={true}
+                        />
+                      )}
+
+                      {chain?.agentResponse && (
+                        <ChatResponse msg={chain?.agentResponse} />
+                      )}
+
+                      {chain?.isHumanEnded && (
+                        <ChatResponse
+                          msg="👋 Human left the conversation"
+                          isSystem={true}
+                        />
+                      )}
+                    </Box>
+                  </Box>
                 ))}
               </Box>
             ))}
@@ -668,7 +739,7 @@ const ChatPanel = ({ id }: { id: string }) => {
                       isAgent
                     />
                   )}
-                  {/* {msg?.guardrails && (
+                  {msg?.guardrails && (
                     <Typography
                       fontSize={14}
                       fontWeight={500}
@@ -678,37 +749,15 @@ const ChatPanel = ({ id }: { id: string }) => {
                     >
                       Guardrails: {msg.guardrails}
                     </Typography>
-                  )} */}
-
-                  {msg?.text && <ChatResponse msg={msg?.text} />}
-                </Box>
-              );
-          })}
-          {streamingMessage?.length > 0 && streaming && (
-            <ChatResponse msg={streamingMessage} />
-          )}
-          {messages.map((msg, index) => {
-            if (msg?.user) return <ChatQuestion msg={msg?.text} key={index} />;
-            else
-              return (
-                <Box
-                  key={index}
-                  display={"flex"}
-                  flexDirection={"column"}
-                  justifyContent={"center"}
-                  gap={1}
-                >
-                  {msg?.toolCall && (
-                    <SpecialResponse msg={msg?.toolCall} isTool />
                   )}
-                  {msg?.agentCall && (
-                    <SpecialResponse
-                      msg={msg?.agentCall}
-                      isParallel={msg.parallel}
-                      isAgent
+
+                  {msg?.text && (
+                    <ChatResponse
+                      msg={msg?.text}
+                      isHuman={msg?.human}
+                      isSystem={msg?.system}
                     />
                   )}
-                  {msg?.text && <ChatResponse msg={msg?.text} />}
                 </Box>
               );
           })}

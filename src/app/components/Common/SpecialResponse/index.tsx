@@ -22,8 +22,6 @@ function SpecialResponse({
       width="80%"
       maxWidth={"80%"}
       overflow={"hidden"}
-      mt={2}
-      mb={1}
     >
       <Box
         display="flex"
@@ -35,7 +33,7 @@ function SpecialResponse({
           py={1.5}
           px={2}
           pr={3}
-          mb={0.5}
+          mt={1}
           bgcolor={isTool ? "green" : isParallel ? "#725CAD" : "#0B1D51"}
           borderRadius="8px 8px 8px 0px"
         >
@@ -48,11 +46,11 @@ function SpecialResponse({
             lineHeight={1.6}
           >
             {isParallel
-              ? `Parallel Agent Called: ${msg}`
+              ? `🍻 Parallel Agent Called: ${msg}`
               : isAgent
-              ? `Agent Got Called: ${msg}`
+              ? `🤖 Agent Got Called: ${msg}`
               : isTool
-              ? `Got Tool Called: ${msg}`
+              ? `🛠 Got Tool Called: ${msg}`
               : msg}
           </Typography>
         </Box>
