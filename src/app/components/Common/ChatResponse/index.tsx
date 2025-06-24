@@ -14,15 +14,24 @@ interface IProps {
 function ChatResponse({ msg, isHuman, isSystem }: IProps) {
   if (isSystem)
     return (
-      <Box display="flex" alignItems="center" my={2}>
-        <Divider sx={{ flex: 1, borderColor: "#1976d2" }} />
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        my={5}
+        boxSizing={"border-box"}
+        px={5}
+        width="100%"
+        alignSelf={"center"}
+      >
+        <Divider sx={{ flex: 1, borderColor: "#7889a1" }} />
         <Typography
           variant="body2"
-          sx={{ mx: 2, color: "#1976d2", whiteSpace: "nowrap" }}
+          sx={{ mx: 2, color: "#052659", whiteSpace: "nowrap" }}
         >
           {msg}
         </Typography>
-        <Divider sx={{ flex: 1, borderColor: "#1976d2" }} />
+        <Divider sx={{ flex: 1, borderColor: "#7889a1" }} />
       </Box>
     );
   return (
@@ -30,6 +39,7 @@ function ChatResponse({ msg, isHuman, isSystem }: IProps) {
       display="flex"
       gap={1}
       justifyContent="flex-start"
+      alignItems={"center"}
       width="80%"
       maxWidth={"80%"}
       overflow={"hidden"}
@@ -41,22 +51,19 @@ function ChatResponse({ msg, isHuman, isSystem }: IProps) {
         width={"fit-content"}
       >
         <Box
-          py={2}
+          py={1.5}
           px={3}
-          mb={0.5}
+          mt={1}
+          display={"flex"}
+          alignItems={"center"}
           bgcolor={isHuman ? "#e5f3fd" : "transparent"}
           border="1px solid #e6e6e6"
           borderRadius="20px 20px 20px 0px"
         >
           <Box
-            display="flex"
-            flexDirection="column"
             fontSize={{ xs: "11px", md: "14px", xl: "16px" }}
             fontFamily={"Inter, sans-serif"}
             lineHeight={1.6}
-            sx={{
-              "& p": { marginBottom: "8px" },
-            }}
           >
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}

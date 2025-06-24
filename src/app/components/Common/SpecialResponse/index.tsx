@@ -14,7 +14,6 @@ function SpecialResponse({
   isAgent = false,
   isTool = false,
 }: IProps) {
-  console.log("SpecialResponse", { msg });
   return (
     <Box
       display="flex"
@@ -23,8 +22,6 @@ function SpecialResponse({
       width="80%"
       maxWidth={"80%"}
       overflow={"hidden"}
-      mt={2}
-      mb={1}
     >
       <Box
         display="flex"
@@ -35,7 +32,8 @@ function SpecialResponse({
         <Box
           py={1.5}
           px={2}
-          mb={0.5}
+          pr={3}
+          mt={1}
           bgcolor={isTool ? "green" : isParallel ? "#725CAD" : "#0B1D51"}
           borderRadius="8px 8px 8px 0px"
         >

@@ -1,6 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { Box, Typography } from "@mui/material";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
+  Modal,
+  Typography,
+} from "@mui/material";
 import SendMessageComponent from "../Common/SendMessageComponent";
 import { chat } from "@/app/service/chatService";
 import { useEffect, useRef, useState } from "react";
@@ -8,19 +16,27 @@ import ChatQuestion from "../Common/ChatQuestion";
 import ChatResponse from "../Common/ChatResponse";
 import React from "react";
 import SpecialResponse from "../Common/SpecialResponse";
+import LiveTvIcon from "@mui/icons-material/LiveTv";
 import {
   clearConversation,
   getAgenticById,
   getAllAgentics,
   getMessageByAgentId,
 } from "@/actions/agenticAction";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { GiBroom } from "react-icons/gi";
 import { FaRegEdit } from "react-icons/fa";
 import { RiRobot3Fill } from "react-icons/ri";
 import { io, Socket } from "socket.io-client";
 
-let socket: Socket;
+import { ReactFlowProvider, useEdgesState, useNodesState } from "@xyflow/react";
+import { SequentialAgentCanvas } from "../SequentialAgentForm/SequentialAgentCanvas";
+import {
+  initialEdges,
+  initialNodes,
+} from "../LLMDrivenAgentForm/LLMDrivenAgentCanvas/data";
+import { ParallelAgentCanvas } from "../ParallelAgentForm/ParallelAgentCanvas";
+import { LLMDrivenAgentCanvas } from "../LLMDrivenAgentForm/LLMDrivenAgentCanvas";
 
 const ChatPanel = ({ id }: { id: string }) => {
   const [question, setQuestion] = useState("");
@@ -30,10 +46,15 @@ const ChatPanel = ({ id }: { id: string }) => {
   const [messages, setMessages] = useState<any[]>([]);
   const [agents, setAgents] = useState([]);
   const [prevMessages, setPrevMessages] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [agentName, setAgentName] = useState<string>("");
+  const [activeAgentId, setActiveAgentId] = useState<string | null>(null);
+  console.log("activeAgentId", activeAgentId);
   const router = useRouter();
-  const [currentAgent, setCurrentAgent] = useState<any>(null);
   const humanConversationRef = useRef(false);
-
+  let socket: Socket;
   const scrollToBottom = () => {
     messageRef.current?.scrollTo({
       behavior: "smooth",
@@ -46,7 +67,6 @@ const ChatPanel = ({ id }: { id: string }) => {
       try {
         const response = await getAgenticById(id);
         if (response) {
-          setCurrentAgent(response);
           if (response?.humanHandover) {
             humanConversationRef.current = true;
           }
@@ -66,7 +86,6 @@ const ChatPanel = ({ id }: { id: string }) => {
     socket.on("connect", () => {
       console.log("Connected to socket.io server");
 
-      // Send message
       socket.emit("message", "Hello from Next.js!");
     });
 
@@ -113,8 +132,274 @@ const ChatPanel = ({ id }: { id: string }) => {
       socket.disconnect();
     };
   }, []);
+  const params = useParams();
+  const getAgentByID = async () => {
+    const response = await getAgenticById(params.id as string);
+    console.log("response", response);
+    if (response) {
+      buildNodesAndEdges(response);
+      setAgentName(response.name);
+    }
+  };
 
   useEffect(() => scrollToBottom(), [streamingMessage, messages]);
+
+  const buildNodesAndEdges = (agentValue: any) => {
+    console.log("agentValue", agentValue);
+    const agentType = agentValue?.type; // "sequential", "parallel", or "llmdriven"
+    const agents = agentValue?.agents || [];
+
+    // Shared variables
+    const START_X = 0;
+    const START_Y = 60;
+    const NODE_SPACING_X = 300;
+
+    let newNodes: any[] = [];
+    let newEdges: any[] = [];
+
+    if (agentType === "sequential") {
+      newNodes.push({
+        id: "sequential-start",
+        type: "startNode",
+        position: { x: START_X, y: START_Y },
+        data: { label: "sequential-start" },
+      });
+
+      agents?.forEach((agent: any, index: number) => {
+        const agentId = `middle-node-${index}`;
+        const posX = START_X + NODE_SPACING_X * (index + 1);
+
+        newNodes.push({
+          id: agentId,
+          type: "middleNode",
+          position: { x: posX, y: START_Y },
+          data: {
+            fields: {
+              name: agent.name,
+              model: agent.chatmodel,
+              instruction: agent.instruction || "",
+              temperature: parseFloat(agent.temperature),
+              topP: parseFloat(agent.topP),
+              tools: agent.tools || [],
+              maxOutputToken: parseInt(agent.maxTokens),
+              description: agent.description || "",
+              outputKeys: agent.outputKeys || [],
+              datastore: agent.datastore || "",
+            },
+            activeAgentId: activeAgentId,
+          },
+        });
+        const sourceId =
+          index === 0 ? "sequential-start" : `middle-node-${index - 1}`;
+        newEdges.push(
+          index == 0 || index === agents?.length - 1
+            ? {
+                id: `e${index}`,
+                source: sourceId,
+                target: agentId,
+              }
+            : {
+                id: `e${index}`,
+                source: sourceId,
+                target: agentId,
+                targetHandle: "input",
+              }
+        );
+      });
+
+      const outputNodeId = "sequential-output";
+      const outputPosX = START_X + NODE_SPACING_X * (agents?.length + 1);
+      newNodes.push({
+        id: outputNodeId,
+        type: "outputNode",
+        position: { x: outputPosX, y: START_Y },
+        data: { label: "sequential-output" },
+      });
+
+      if (agents?.length > 0) {
+        newEdges.push({
+          id: `e${agents.length}`,
+          source: `middle-node-${agents.length - 1}`,
+          target: outputNodeId,
+          targetHandle: "output",
+          style: { stroke: "#4dd0e1" },
+          markerEnd: { type: "arrowclosed", color: "#4dd0e1" },
+        });
+      }
+    } else if (agentType === "parallel") {
+      const OUTPUT_X = 680;
+      const MERGE_X = 460;
+      const MERGE_Y = 200;
+      const AGENT_X = 170;
+
+      newNodes = [
+        {
+          id: "parallel-start",
+          type: "startNode",
+          position: { x: START_X, y: START_Y },
+          data: { label: "Start" },
+        },
+        {
+          id: "merge-node",
+          type: "mergeNode",
+          position: { x: MERGE_X, y: MERGE_Y },
+          data: { label: "Merge" },
+        },
+        {
+          id: "parallel-output",
+          type: "outputNode",
+          position: { x: OUTPUT_X, y: START_Y },
+          data: { label: "Output" },
+        },
+      ];
+
+      newEdges = [];
+
+      agents?.forEach((agent: any, index: number) => {
+        const agentId = `middle-node-${index}`;
+        const posY = START_Y + index * 150;
+        newNodes.push({
+          id: agentId,
+          type: "middleNode",
+          position: { x: AGENT_X, y: posY },
+          data: {
+            fields: {
+              name: agent.name,
+              model: agent.chatmodel,
+              instruction: agent.instruction || "",
+              temperature: parseFloat(agent.temperature),
+              topP: parseFloat(agent.topP),
+              tools: agent.tools || [],
+              maxOutputToken: parseInt(agent.maxTokens),
+              description: agent.description || "",
+              outputKeys: agent.outputKeys || "",
+              datastore: agent.datastore || "",
+            },
+            activeAgentId: activeAgentId,
+          },
+        });
+
+        newEdges.push(
+          { id: `e-start-${index}`, source: "parallel-start", target: agentId },
+          { id: `e-merge-${index}`, source: agentId, target: "merge-node" }
+        );
+      });
+
+      newEdges.push({
+        id: "e-output",
+        source: "merge-node",
+        target: "parallel-output",
+      });
+    } else if (agentType === "llmdriven") {
+      newNodes.push({
+        id: "llmdriven-start",
+        type: "startNode",
+        position: { x: START_X, y: START_Y + 60 },
+        data: { label: "llmdriven-start" },
+      });
+
+      const orchestrator = agents?.filter(
+        (agent: any) => agent.isOrchestrator
+      )[0];
+
+      newNodes.push({
+        id: "orchestrator",
+        type: "middleNode",
+        position: { x: 200, y: START_Y + 60 },
+        data: {
+          fields: {
+            name: orchestrator.name || "Orchestrator",
+            model: orchestrator.chatmodel || "gpt-4.1",
+            instruction: orchestrator.instruction || "",
+            temperature: parseFloat(orchestrator.temperature) || 0.7,
+            topP: parseFloat(orchestrator.topP) || 1.0,
+            tools: orchestrator.tools || [],
+            maxOutputToken: parseInt(orchestrator.maxTokens) || 16000,
+            description: orchestrator.description || "",
+            outputKeys: orchestrator.outputKeys || [],
+            isOrchestrator: true,
+          },
+          activeAgentId: activeAgentId,
+        },
+      });
+
+      if (agents?.length > 2) {
+        agents
+          ?.filter((ag: any) => !ag.isOrchestrator)
+          .forEach((agent: any, index: number) => {
+            const agentId = `middle-node-${index}`;
+            const posY = START_Y + index * 150;
+
+            newNodes.push({
+              id: agentId,
+              type: "middleNode",
+              position: { x: 450, y: posY },
+              data: {
+                fields: {
+                  name: agent.name,
+                  model: agent.chatmodel,
+                  instruction: agent.instruction || "",
+                  temperature: parseFloat(agent.temperature),
+                  topP: parseFloat(agent.topP),
+                  tools: agent.tools || [],
+                  maxOutputToken: parseInt(agent.maxTokens),
+                  description: agent.description || "",
+                  outputKeys: agent.outputKeys || [],
+                  isOrchestrator: agent.isOrchestrator || false,
+                  datastore: agent.datastore || "",
+                },
+                activeAgentId: activeAgentId,
+              },
+            });
+
+            newEdges.push(
+              {
+                id: `e-start-${index}`,
+                source: "orchestrator",
+                target: agentId,
+              },
+              {
+                id: `e-merge-${index}`,
+                source: agentId,
+                target: "llmdriven-output",
+              }
+            );
+          });
+      }
+
+      newEdges.push({
+        id: `e2`,
+        source: "orchestrator",
+        target: "llmdriven-output",
+        targetHandle: "output",
+      });
+
+      newEdges.push({
+        id: "e-start",
+        source: "llmdriven-start",
+        target: "orchestrator",
+      });
+
+      const outputNodeId = "llmdriven-output";
+      newNodes.push({
+        id: outputNodeId,
+        type: "outputNode",
+        position: { x: 700, y: START_Y + 60 },
+        data: { label: "llmdriven-output" },
+      });
+    } else {
+      console.warn("Unknown agent type:", agentType);
+    }
+
+    setNodes(newNodes);
+    setEdges(newEdges);
+  };
+
+  useEffect(() => {
+    if (params.id) {
+      getAgentByID();
+    }
+  }, [activeAgentId, params.id]);
 
   const submitMessage = async () => {
     setMessages((prev) => [...prev, { text: question, user: true }]);
@@ -125,9 +410,12 @@ const ChatPanel = ({ id }: { id: string }) => {
       streamingMessage,
       setStreamingMessage,
       setMessages,
-      setStreaming
+      setStreaming,
+      setActiveAgentId
     );
   };
+  const handleOpen = () => setModalOpen(true);
+  const handleClose = () => setModalOpen(false);
 
   const clearChat = async () => {
     try {
@@ -142,12 +430,16 @@ const ChatPanel = ({ id }: { id: string }) => {
   useEffect(() => {
     const fetch = async () => {
       const agents = await getAllAgentics();
-      setAgents(agents.data);
+      setAgents(agents?.data);
       const response = await getMessageByAgentId(id);
       setPrevMessages(response);
     };
     fetch();
   }, []);
+
+  const currentAgent: any = agents?.filter(
+    (agent: any) => agent?._id === id
+  )[0];
 
   return (
     <Box
@@ -260,6 +552,11 @@ const ChatPanel = ({ id }: { id: string }) => {
             {currentAgent?.name || ""}
           </Typography>
           <Box display={"flex"} alignItems={"center"} gap={3} mr={1}>
+            <LiveTvIcon
+              sx={{ color: "white", cursor: "pointer" }}
+              fontSize="medium"
+              onClick={handleOpen}
+            />
             <GiBroom
               color="white"
               size={24}
@@ -278,6 +575,72 @@ const ChatPanel = ({ id }: { id: string }) => {
             />
           </Box>
         </Box>
+        <Modal
+          open={modalOpen}
+          onClose={handleClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box>
+            <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "80vw",
+                height: "80vh",
+                bgcolor: "background.paper",
+                boxShadow: 24,
+                p: 4,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <Typography id="modal-modal-title" variant="h6" component="h2">
+                Agent Flow: {currentAgent?.name}
+              </Typography>
+              <Box sx={{ flexGrow: 1, position: "relative" }}>
+                <ReactFlowProvider>
+                  {currentAgent?.type === "sequential" && (
+                    <SequentialAgentCanvas
+                      nodes={nodes}
+                      edges={edges}
+                      onNodesChange={() => {}}
+                      onEdgesChange={() => {}}
+                      onConnect={() => {}}
+                      addAgentNode={() => {}}
+                      handleNodeDoubleClick={() => {}}
+                    />
+                  )}
+                  {currentAgent?.type === "parallel" && (
+                    <ParallelAgentCanvas
+                      nodes={nodes}
+                      edges={edges}
+                      onNodesChange={() => {}}
+                      onEdgesChange={() => {}}
+                      onConnect={() => {}}
+                      addAgentNode={() => {}}
+                      handleNodeDoubleClick={() => {}}
+                      handleMergeDoubleClick={() => {}}
+                    />
+                  )}
+                  {currentAgent?.type === "llmdriven" && (
+                    <LLMDrivenAgentCanvas
+                      nodes={nodes}
+                      edges={edges}
+                      onNodesChange={() => {}}
+                      onEdgesChange={() => {}}
+                      onConnect={() => {}}
+                      addAgentNode={() => {}}
+                      handleNodeDoubleClick={() => {}}
+                    />
+                  )}
+                </ReactFlowProvider>
+              </Box>
+            </Box>
+          </Box>
+        </Modal>
         <Box
           width={"100%"}
           height={"100%"}
@@ -295,64 +658,61 @@ const ChatPanel = ({ id }: { id: string }) => {
 
                 {msg?.chains.map((chain: any, index: number) => (
                   <Box key={index}>
-                    {chain?.isHumanStarted && (
-                      <ChatResponse
-                        msg="👩‍💼 Human joined the conversation"
-                        isSystem={true}
-                      />
-                    )}
-
-                    {chain?.agentName && !chain?.humanResponse && (
-                      <SpecialResponse
-                        msg={chain?.agentName}
-                        isParallel={chain?.isParallel}
-                        isAgent
-                      />
-                    )}
-
-                    {/* {chain?.agentName &&
-                      chain?.humanResponse &&
-                      !chain?.isHumanEnded && (
+                    <Box width="100%">
+                      {chain?.isHumanStarted && (
                         <ChatResponse
-                          msg={
-                            "👩‍💼 " +
-                            chain?.agentName +
-                            " joined the conversation"
-                          }
+                          msg="👩‍💼 Human joined the conversation"
                           isSystem={true}
                         />
-                      )} */}
-                    {chain.guardrails && (
-                      <Typography
-                        fontSize={14}
-                        fontWeight={500}
-                        color="#052659"
-                        mt={1}
-                        mb={1}
-                      >
-                        Guardrails: {chain.guardrails}
-                      </Typography>
-                    )}
-                    {chain?.toolsUsage?.length > 0 && (
-                      <SpecialResponse
-                        msg={chain?.toolsUsage}
-                        isParallel={chain?.parallel}
-                        isTool
-                      />
-                    )}
-                    {chain?.humanResponse && (
-                      <ChatResponse msg={chain?.humanResponse} isHuman={true} />
-                    )}
-                    {chain?.agentResponse && (
-                      <ChatResponse msg={chain?.agentResponse} />
-                    )}
+                      )}
 
-                    {chain?.isHumanEnded && (
-                      <ChatResponse
-                        msg="👋 Conversation closed"
-                        isSystem={true}
-                      />
-                    )}
+                      {chain?.agentName && !chain?.humanResponse && (
+                        <SpecialResponse
+                          msg={chain?.agentName}
+                          isParallel={chain?.isParallel}
+                          isAgent
+                        />
+                      )}
+
+                      {chain.guardrails && (
+                        <Typography
+                          fontSize={14}
+                          fontWeight={500}
+                          color="#052659"
+                          mt={1}
+                          mb={1}
+                        >
+                          Guardrails: {chain.guardrails}
+                        </Typography>
+                      )}
+                    </Box>
+
+                    <Box>
+                      {chain?.toolsUsage?.length > 0 && (
+                        <SpecialResponse
+                          msg={chain?.toolsUsage}
+                          isParallel={chain?.parallel}
+                          isTool
+                        />
+                      )}
+                      {chain?.humanResponse && (
+                        <ChatResponse
+                          msg={chain?.humanResponse}
+                          isHuman={true}
+                        />
+                      )}
+
+                      {chain?.agentResponse && (
+                        <ChatResponse msg={chain?.agentResponse} />
+                      )}
+
+                      {chain?.isHumanEnded && (
+                        <ChatResponse
+                          msg="👋 Human left the conversation"
+                          isSystem={true}
+                        />
+                      )}
+                    </Box>
                   </Box>
                 ))}
               </Box>
@@ -415,5 +775,4 @@ const ChatPanel = ({ id }: { id: string }) => {
     </Box>
   );
 };
-
 export default ChatPanel;

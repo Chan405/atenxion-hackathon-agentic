@@ -8,6 +8,8 @@ import Image from "next/image";
 import { guardrailsList, toolLists } from "../../Common/AgentCreateModal";
 
 const AgentNode = ({ data }: any) => {
+  const isActive =
+    String(data.fields.name).trim() === String(data.activeAgentId).trim();
   return (
     <Tooltip
       title={
@@ -40,9 +42,25 @@ const AgentNode = ({ data }: any) => {
           width: 200,
           backgroundColor: "rgb(223, 248, 255)",
           borderRadius: "12px",
-          border: "2px solid #4dd0e1",
+          border: isActive ? "2px solid #4dd0e1" : "1px solid black",
           overflow: "hidden",
           fontFamily: "sans-serif",
+          position: "relative",
+          ...(isActive && {
+            boxShadow: "0 0 10px 3px rgba(77, 208, 225, 0.7)",
+            animation: "pulse 1.5s infinite",
+          }),
+          "@keyframes pulse": {
+            "0%": {
+              boxShadow: "0 0 5px 2px rgba(77, 208, 225, 0.5)",
+            },
+            "50%": {
+              boxShadow: "0 0 15px 5px rgba(77, 208, 225, 0.9)",
+            },
+            "100%": {
+              boxShadow: "0 0 5px 2px rgba(77, 208, 225, 0.5)",
+            },
+          },
         }}
         onDoubleClick={data.onDoubleClick}
       >
@@ -109,7 +127,7 @@ const AgentNode = ({ data }: any) => {
           ))}
         </Box>
 
-        {data.fields.guardrails.length > 0 && (
+        {data.fields.guardrails?.length > 0 && (
           <Box
             px={1.5}
             display="flex"

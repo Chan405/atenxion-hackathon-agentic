@@ -6,7 +6,8 @@ export async function chat(
   streamingMessage: string,
   setStreamingMessage: any,
   setMessages: any,
-  setStreaming: any
+  setStreaming: any,
+   setActiveAgentId:any
 ) {
   try {
     const streamMessage = await fetch("/api/chat", {
@@ -61,6 +62,7 @@ export async function chat(
                   setStreamingMessage((prev) => prev + jsonData.response);
                 }
               } else if (jsonData.status === "Agent Called") {
+                setActiveAgentId(jsonData.response);
                 setMessages((prev) => [
                   ...prev,
                   { agentCall: `${jsonData.response}` },
