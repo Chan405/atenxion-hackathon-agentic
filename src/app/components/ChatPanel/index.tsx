@@ -708,7 +708,7 @@ const ChatPanel = ({ id }: { id: string }) => {
 
                       {chain?.isHumanEnded && (
                         <ChatResponse
-                          msg="👋 Human left the conversation"
+                          msg="👋 Conversation closed"
                           isSystem={true}
                         />
                       )}
