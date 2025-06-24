@@ -191,7 +191,35 @@ const ChatPanel = ({ id }: { id: string }) => {
       agents.forEach((agent: any, index: number) => {
         const agentId = `middle-node-${index}`;
         const posY = START_Y + index * 150;
-
+        {
+          prevMessages?.length > 0 &&
+            prevMessages.map((msg: any, index: number) => (
+              <Box key={index}>
+                {msg?.question && <ChatQuestion msg={msg?.question} />}
+                {msg?.chains.map((chain: any, index: number) => (
+                  <Box key={index}>
+                    {chain?.agentName && (
+                      <SpecialResponse
+                        msg={chain?.agentName}
+                        isParallel={chain?.isParallel}
+                        isAgent
+                      />
+                    )}
+                    {chain?.agentResponse && (
+                      <ChatResponse msg={chain.agentResponse} />
+                    )}
+                    {chain?.toolsUsage?.length > 0 && (
+                      <SpecialResponse
+                        msg={chain?.toolsUsage}
+                        isParallel={chain?.parallel}
+                        isTool
+                      />
+                    )}
+                  </Box>
+                ))}
+              </Box>
+            ));
+        }
         newNodes.push({
           id: agentId,
           type: "middleNode",
@@ -552,7 +580,7 @@ const ChatPanel = ({ id }: { id: string }) => {
                     <LLMDrivenAgentCanvas
                       nodes={nodes}
                       edges={edges}
-                     onNodesChange={() => {}}
+                      onNodesChange={() => {}}
                       onEdgesChange={() => {}}
                       onConnect={() => {}}
                       addAgentNode={() => {}}
@@ -583,9 +611,10 @@ const ChatPanel = ({ id }: { id: string }) => {
                   <Box key={index}>
                     {chain?.agentName && (
                       <>
-                        <Accordion
+                        {/* <Accordion
                           defaultExpanded
                           sx={{
+                            // bgcolor:"red",
                             boxShadow: "none",
                             border: "none",
                             "&:before": {
@@ -594,17 +623,24 @@ const ChatPanel = ({ id }: { id: string }) => {
                           }}
                         >
                           <AccordionSummary
-                            expandIcon={<div></div>}
+                            expandIcon={null}
                             aria-controls={`panel${index}-content`}
                             id={`panel${index}-header`}
-                          >
-                            <SpecialResponse
-                              msg={chain?.agentName}
-                              isParallel={chain?.isParallel}
-                              isAgent
-                            />
-                            <Box display="flex" alignItems="center">
-                              <IconButton
+                          > */}
+                        <Box
+                          display="flex"
+                          alignItems="center"
+                          width="100%"
+                          p={1}
+                          borderRadius="8px"
+                        >
+                          {/* <SpecialResponse
+                            msg={chain?.agentName}
+                            isParallel={chain?.isParallel}
+                            isAgent
+                          /> */}
+
+                          {/* <IconButton
                                 onClick={() =>
                                   setDropdownOpen((prev) => ({
                                     ...prev,
@@ -617,9 +653,9 @@ const ChatPanel = ({ id }: { id: string }) => {
                                   <ExpandMoreIcon
                                     sx={{
                                       ml:
-                                        chain?.agentName?.length > 6
-                                          ? -136
-                                          : -156,
+                                        chain?.agentName?.length > 10
+                                          ? -130
+                                          : -146,
                                       zIndex: 100,
                                       color: "white",
                                       pt: 0.5,
@@ -631,9 +667,9 @@ const ChatPanel = ({ id }: { id: string }) => {
                                   <ExpandLessIcon
                                     sx={{
                                       ml:
-                                        chain?.agentName?.length > 6
-                                          ? -136
-                                          : -156,
+                                        chain?.agentName?.length > 10
+                                          ? -130
+                                          : -146,
                                       zIndex: 100,
                                       color: "white",
                                       pt: 0.5,
@@ -642,29 +678,29 @@ const ChatPanel = ({ id }: { id: string }) => {
                                     }}
                                   />
                                 )}
-                              </IconButton>
-                            </Box>
-                          </AccordionSummary>
-                          <AccordionDetails>
-                            {/* {chain?.agentResponse && (
-            <ChatResponse msg={chain.agentResponse} />
-          ) : (
-            <Typography color="gray">No response.</Typography>
-          )} */}
-                            <Box sx={{ mt: -4 }}>
-                              {chain?.agentResponse && (
-                                <ChatResponse msg={chain.agentResponse} />
-                              )}
-                            </Box>
-                            {chain?.toolsUsage?.length > 0 && (
-                              <SpecialResponse
-                                msg={chain?.toolsUsage}
-                                isParallel={chain?.parallel}
-                                isTool
-                              />
-                            )}
-                          </AccordionDetails>
-                        </Accordion>
+                              </IconButton> */}
+                        </Box>
+                        {/* </AccordionSummary>
+                          <AccordionDetails> */}
+                        <Box sx={{}}>
+                          {chain?.agentResponse && (
+                            <ChatResponse
+                              msg={chain.agentResponse}
+                              agent={chain?.agentName}
+                              isParallel={chain?.isParallel}
+                              isAgent
+                            />
+                          )}
+                        </Box>
+                        {chain?.toolsUsage?.length > 0 && (
+                          <SpecialResponse
+                            msg={chain?.toolsUsage}
+                            isParallel={chain?.parallel}
+                            isTool
+                          />
+                        )}
+                        {/* </AccordionDetails>
+                        </Accordion> */}
                       </>
                     )}
                     {/* {chain?.toolsUsage?.length > 0 && (
