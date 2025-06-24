@@ -217,12 +217,24 @@ const ChatPanel = ({ id }: { id: string }) => {
 
                 {msg?.chains.map((chain: any, index: number) => (
                   <Box key={index}>
+                    {console.log(chain)}
                     {chain?.agentName && (
                       <SpecialResponse
                         msg={chain?.agentName}
                         isParallel={chain?.isParallel}
                         isAgent
                       />
+                    )}
+                    {chain.guardrails && (
+                      <Typography
+                        fontSize={14}
+                        fontWeight={500}
+                        color="#052659"
+                        mt={1}
+                        mb={1}
+                      >
+                        Guardrails: {chain.guardrails}
+                      </Typography>
                     )}
                     {chain?.toolsUsage?.length > 0 && (
                       <SpecialResponse
@@ -252,6 +264,7 @@ const ChatPanel = ({ id }: { id: string }) => {
                   {msg?.toolCall && (
                     <SpecialResponse msg={msg?.toolCall} isTool />
                   )}
+
                   {msg?.agentCall && (
                     <SpecialResponse
                       msg={msg?.agentCall}
@@ -259,6 +272,18 @@ const ChatPanel = ({ id }: { id: string }) => {
                       isAgent
                     />
                   )}
+                  {msg?.guardrails && (
+                    <Typography
+                      fontSize={14}
+                      fontWeight={500}
+                      color="#052659"
+                      mt={1}
+                      mb={1}
+                    >
+                      Guardrails: {msg.guardrails}
+                    </Typography>
+                  )}
+
                   {msg?.text && <ChatResponse msg={msg?.text} />}
                 </Box>
               );

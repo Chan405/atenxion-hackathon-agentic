@@ -20,6 +20,52 @@ interface ModalProps {
   removeAgent: any;
 }
 
+export const toolLists = [
+  {
+    value: "WebSearchTavily",
+    label: "Web Search",
+    image: "/assets/websearch.png",
+  },
+  {
+    value: "CodeInterpreter",
+    label: "Code Interpreter",
+    image: "/assets/code.png",
+  },
+  {
+    value: "AtenxionAgent",
+    label: "Atenxion Agent",
+    image: "/assets/Atenxion_Logo.svg",
+  },
+  {
+    value: "RAG",
+    label: "RAG as a tool",
+    image: "/assets/Atenxion_Logo.svg",
+  },
+  {
+    value: "MCPLine",
+    label: "LINE as MCP",
+    image: "/assets/line.png",
+  },
+  {
+    value: "HumanHandover",
+    label: "Zoho Human Handover",
+    image: "/assets/zoho.png",
+  },
+];
+
+export const guardrailsList = [
+  {
+    value: "JailbreakGuard",
+    label: "Jailbreak",
+    image: "/assets/criminal.png",
+  },
+  {
+    value: "PIIGuard",
+    label: "PII Guard",
+    image: "/assets/personal-information.png",
+  },
+];
+
 function AgentCreateModal({
   open,
   handleClose,
@@ -31,35 +77,6 @@ function AgentCreateModal({
     { value: "gpt-4.1", label: "GPT 4.1" },
     { value: "gpt-4o", label: "GPT 4o" },
     { value: "gemini-2.5-pro-preview-05-06", label: "Gemini 2.5" },
-  ];
-
-  const toolLists = [
-    { value: "WebSearch", label: "Web Search", image: "/assets/websearch.png" },
-    {
-      value: "CodeInterpreter",
-      label: "Code Interpreter",
-      image: "/assets/code.png",
-    },
-    {
-      value: "AtenxionAgent",
-      label: "Atenxion Agent",
-      image: "/assets/Atenxion_Logo.svg",
-    },
-    {
-      value: "RAG",
-      label: "RAG as a tool",
-      image: "/assets/Atenxion_Logo.svg",
-    },
-    {
-      value: "MCPLine",
-      label: "LINE as MCP",
-      image: "/assets/line.png",
-    },
-    {
-      value: "HumanHandover",
-      label: "Zoho Human Handover",
-      image: "/assets/line.png",
-    },
   ];
 
   const values = selectedNode.data.fields;
@@ -76,6 +93,7 @@ function AgentCreateModal({
     outputKeys: values.outputKeys || [],
     datastore: values.datastore || "",
     isOrchestrator: values.isOrchestrator || false,
+    guardrails: values.guardrails || [],
   };
   const advancedRef = useRef<HTMLDivElement>(null);
   const [advanceOpen, setAdvanceOpen] = React.useState(false);
@@ -325,6 +343,66 @@ function AgentCreateModal({
                             onChange={handleChange}
                           />
                         )}
+                      </Box>
+                    </Box>
+                    <Box width={"100%"} sx={{ mt: 2 }}>
+                      <Box
+                        sx={{
+                          padding: "10px",
+                        }}
+                      >
+                        <BodyText
+                          variant="small"
+                          mb={1}
+                          sx={{ display: "flex", flexDirection: "column" }}
+                        >
+                          Guardrails
+                        </BodyText>
+                        {guardrailsList.map((guard) => (
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              marginBottom: "10px",
+                            }}
+                            key={guard.value}
+                          >
+                            <Image
+                              src={guard.image}
+                              alt={guard.label}
+                              width={30}
+                              height={30}
+                              style={{ marginRight: "10px" }}
+                            />{" "}
+                            <Box
+                              display="flex"
+                              alignItems="center"
+                              justifyContent="space-between"
+                              width="100%"
+                              paddingY={1}
+                            >
+                              <BodyText variant="small" weight="regular">
+                                {guard.label}
+                              </BodyText>
+                              <IOSSwitch
+                                checked={values.guardrails.includes(
+                                  guard.value
+                                )}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  const newValue = checked
+                                    ? [...values.guardrails, guard.value]
+                                    : values.guardrails.filter(
+                                        (val: any) => val !== guard.value
+                                      );
+                                  setFieldValue("guardrails", newValue);
+                                }}
+                                name="toggleSwitch"
+                                color="primary"
+                              />
+                            </Box>
+                          </Box>
+                        ))}
                       </Box>
                     </Box>
                   </Box>

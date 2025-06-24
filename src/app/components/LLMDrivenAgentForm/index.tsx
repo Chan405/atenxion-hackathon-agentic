@@ -148,6 +148,7 @@ function LLMDrivenAgentForm() {
           outputKeys: [],
           isOrchestrator: false,
           datastore: "",
+          guardrails: [],
         },
       },
     };
@@ -297,6 +298,7 @@ function LLMDrivenAgentForm() {
           description: orchestrator.description || "",
           outputKeys: orchestrator.outputKeys || [],
           isOrchestrator: true,
+          guardrails: orchestrator.guardrails || [],
         },
       },
     });
@@ -324,6 +326,7 @@ function LLMDrivenAgentForm() {
               outputKeys: agent.outputKeys || [],
               isOrchestrator: agent.isOrchestrator || false,
               datastore: agent.datastore || "",
+              guardrails: agent.guardrails || [],
             },
           },
         });
@@ -436,6 +439,7 @@ function LLMDrivenAgentForm() {
           outputKeys: fields.outputKeys,
           isOrchestrator: fields.isOrchestrator || false,
           datastore: fields.datastore || "",
+          guardrails: fields.guardrails || [],
         };
       }
     });
