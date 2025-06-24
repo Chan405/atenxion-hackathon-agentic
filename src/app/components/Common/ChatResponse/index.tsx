@@ -95,7 +95,7 @@ function ChatResponse({
         >
           <Box
             py={1}
-            // px={3}
+            px={2}
             mb={1.5}
             bgcolor={"transparent"}
             border={"1px solid #e6e6e6"}
